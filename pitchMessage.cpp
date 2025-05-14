@@ -1,7 +1,7 @@
 /**
  * @file pitchMessage.cpp
  * @author Derek Zhang
- * @brief PITCH message class
+ * @brief PITCH Message class
  * @version 0.1
  * @date 2025-05-12
  * 
@@ -10,11 +10,13 @@
  */
 
 #include "pitchMessage.h"
+#include <stdexcept>
 
-PitchMessage::PitchMessage(char msgType, std::vector<std::string> fieldList)
+PitchMessage::PitchMessage(char newMsgType, std::vector<std::string> fieldList)
 {
     msgFields = fieldList;
-    std::string msgTypeStr{msgType};
+    msgType = newMsgType;
+    std::string msgTypeStr{newMsgType};
     setParameter("Message Type", msgTypeStr);
 }
 
@@ -24,27 +26,31 @@ PitchMessage PitchMessage::setParameter(std::string param, std::string value)
     return *this;
 }
 
-bool PitchMessage::isValid()
+std::string PitchMessage::getParameter(std::string param) const
 {
-    for (std::string fieldName : msgFields) {
-        if (params.find(fieldName) == params.end()) {
-            return false;
-        }
-    }
-
-    return true;
-}
-
-std::string PitchMessage::toString()
-{
-    if (!isValid()) {
+    auto paramsIt = params.find(param);
+    if (paramsIt == params.end()) {
         return "";
     }
 
+    return paramsIt->second;
+}
+
+std::string PitchMessage::string() const
+{
     std::string pitchString = "S";
     for (std::string fieldName : msgFields) {
-        pitchString += params[fieldName];
+        auto paramsPtr = params.find(fieldName);
+        if (paramsPtr == params.end()) {
+            throw std::runtime_error("Message missing required parameter " + fieldName + ".");
+        }
+        pitchString += paramsPtr->second;
     }
 
     return pitchString;
+}
+
+char PitchMessage::type() const
+{
+    return msgType;
 }

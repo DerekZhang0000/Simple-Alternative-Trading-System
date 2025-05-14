@@ -24,7 +24,7 @@ class PitchMsgFactory {
     std::vector<std::string> tradeMsgFields =       {"Timestamp", "MessageType", "OrderID", "Side", "Shares", "Symbol", "Price", "ExecutionID"};
 
     public:
-    enum MSG_TYPE {ADD = 'A', CANCEL = 'X', EXECUTE = 'E', TRADE = 'P'};
+    enum MSG_TYPE {ADD, CANCEL, EXECUTE, TRADE};
 
     PitchMsgFactory() = default;
     ~PitchMsgFactory() = default;

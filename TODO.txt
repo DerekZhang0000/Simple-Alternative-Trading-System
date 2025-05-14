@@ -1,0 +1,2 @@
+Use FIX protocol for order inputs instead of PITCH
+Implement options / build barone-adesi whaley model

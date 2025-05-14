@@ -1,7 +1,7 @@
 /**
  * @file pitchMessage.h
  * @author Derek Zhang
- * @brief PITCH message header file
+ * @brief PITCH Message header file
  * @version 0.1
  * @date 2025-05-12
  * 
@@ -19,6 +19,7 @@
 class PitchMessage
 {
     private:
+    char msgType;
     std::unordered_map<std::string, std::string> params;
     std::vector<std::string> msgFields;
 
@@ -26,14 +27,14 @@ class PitchMessage
     ~PitchMessage() = default;
 
     /**
-     * @brief Construct a new Pitch Message object and sets the appropriate required field list
+     * @brief Construct a new PITCH Message object and sets the appropriate required field list
      * 
      * @param msgType 
      */
     PitchMessage(char msgType, std::vector<std::string> msgFields);
 
     /**
-     * @brief Set the Parameter object, 
+     * @brief Sets a parameter and returns self
      * 
      * @param param 
      * @param value 
@@ -42,19 +43,26 @@ class PitchMessage
     PitchMessage setParameter(std::string param, std::string value);
 
     /**
-     * @brief Returns whether or not the PITCH message has all necessary information
+     * @brief Gets a specified parameter
      * 
-     * @return true 
-     * @return false 
+     * @param param 
+     * @return std::string 
      */
-    bool isValid();
+    std::string getParameter(std::string param) const;
 
     /**
      * @brief Returns the PITCH message as a string
      * 
      * @return std::string 
      */
-    std::string toString();
+    std::string string() const;
+
+    /**
+     * @brief Returns the PITCH message type
+     * 
+     * @return char 
+     */
+    char type() const;
 };
 
 #endif
