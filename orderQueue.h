@@ -19,11 +19,31 @@
 class OrderQueue
 {
     private:
-    char side;  // B or S
-    int price;  // value in cents
-    std::priority_queue<Order> orderQueue = {};
+    char side;      // B or S
+    int queuePrice; // value in cents
+    std::priority_queue<Order*> orderQueue = {};
 
     public:
+    /**
+     * @brief Construct a new Order Queue object with a new Order object
+     * 
+     * @param order 
+     */
+    OrderQueue(Order* orderPtr);
+
+    /**
+     * @brief Destroy the Order Queue object
+     * 
+     */
+    ~OrderQueue();
+
+    /**
+     * @brief Returns the price of the orders in the queue
+     * 
+     * @return int 
+     */
+    int price() const;
+
     /**
      * @brief Overloaded comparison operator to sort by price priority
      * 
@@ -31,14 +51,28 @@ class OrderQueue
      * @return true 
      * @return false 
      */
-    bool operator<(const OrderQueue& otherQueue) const;
+    bool operator<(const OrderQueue &otherQueue) const;
 
     /**
      * @brief Insert an order object into the queue
      * 
      * @param order 
      */
-    void insert(Order order);
+    void insertOrder(Order* orderPtr);
+
+    /**
+     * @brief Modify the number of shares on an outstanding order
+     * 
+     * @param orderId 
+     */
+    void modifyShares(std::string orderId, int newShares);
+
+    /**
+     * @brief Deletes an order, then deletes itself if queue is empty
+     * 
+     * @param orderId 
+     */
+    void deleteOrder(std::string orderId);
 
     /**
      * @brief Returns whether or not the queue is empty

@@ -1,2 +1,12 @@
+Core Functionality
+DONE Create message class
+Create matching engine and order book architecture
+Create trading simulator
+Set up testing and logging
+Create visualization tools
+Add data collection and analysis
+
+Bonus Tasks
 Use FIX protocol for order inputs instead of PITCH
 Implement options / build barone-adesi whaley model
+Host on the internet

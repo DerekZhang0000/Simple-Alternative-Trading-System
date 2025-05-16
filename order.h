@@ -15,26 +15,30 @@
 class Order
 {
     private:
-    int shares;
-    int price;      // value in cents
-    char side;      // B or S
-    int timestamp;  // milliseconds since midnight
+    int orderShares;
+    int orderPrice;     // value in cents
+    char orderSide;     // B or S
+    int orderTimestamp; // milliseconds since midnight
 
     public:
     /**
      * @brief Construct a new Order object
      * 
      * @param shares 
-     * @param price 
+     * @param price
      * @param side 
      * @param timestamp 
      */
     Order(int shares, int price, char side, int timestamp);
     ~Order() = default;
 
+    int price()         const;
+    int shares()        const;
+    char side()         const;
+    int timestamp()     const;
+
     /**
      * @brief Modifies the share count, returning the difference if more shares were traded than exist
-     * 
      * @param shareDelta 
      * @return int 
      */

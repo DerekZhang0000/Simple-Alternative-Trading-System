@@ -13,25 +13,43 @@
 
 Order::Order(int newShares, int newPrice, char newSide, int newTimestamp)
 {
-    shares = newShares;
-    price = newPrice;
-    side = newPrice;
-    timestamp = newTimestamp;
+    orderShares = newShares;
+    orderPrice = newPrice;
+    orderSide = newPrice;
+    orderTimestamp = newTimestamp;
 }
 
 int Order::tradeShares(int shareDelta)
 {
-    shares -= shareDelta;
-    if (shares == 0) {
-        delete this;
+    orderShares -= shareDelta;
+    if (orderShares == 0) {
         return 0;
-    } else if (shares < 0) {
-        delete this;
-        return -shares;
+    } else if (orderShares < 0) {
+        return -orderShares;
     }
 }
 
 bool Order::operator<(const Order& otherOrder) const
 {
-    return timestamp > otherOrder.timestamp;    // Greater timestamps are younger, and have lower priority
+    return orderTimestamp > otherOrder.orderTimestamp;    // Greater timestamps are younger, and have lower priority
+}
+
+int Order::price() const
+{
+    return orderPrice;
+}
+
+int Order::shares() const
+{
+    return orderShares;
+}
+
+char Order::side() const
+{
+    return orderSide;
+}
+
+int Order::timestamp() const
+{
+    return orderTimestamp;
 }

@@ -12,23 +12,43 @@
 #include "orderQueue.h"
 #include <stdexcept>
 
-bool OrderQueue::operator<(const OrderQueue& otherQueue) const
+OrderQueue::OrderQueue(Order* orderPtr)
+{
+    insertOrder(orderPtr);
+}
+
+OrderQueue::~OrderQueue()
+{
+    while (!orderQueue.empty()) {
+        Order* qTop = orderQueue.top();
+        if (qTop != nullptr) {
+            qTop->~Order();
+        }
+    }
+}
+
+bool OrderQueue::operator<(const OrderQueue &otherQueue) const
 {
     if (side == 'B') {
-        return price < otherQueue.price;    
+        return queuePrice < otherQueue.queuePrice;    // Higher buy prices are prioritized for matching an incoming sell order
     } else if (side == 'S') {
-        return price > otherQueue.price;
+        return queuePrice > otherQueue.queuePrice;    // Lower sell prices are prioritized for matching an incoming buy order
     }
 
     throw std::runtime_error("Invalid side for Order Queue object.");
 }
 
-void OrderQueue::insert(Order order)
+void OrderQueue::insertOrder(Order* orderPtr)
 {
-    orderQueue.push(order);
+    orderQueue.push(orderPtr);
 }
 
 int OrderQueue::empty() const
 {
     return orderQueue.empty();
+}
+
+int OrderQueue::price() const
+{
+    return queuePrice;
 }

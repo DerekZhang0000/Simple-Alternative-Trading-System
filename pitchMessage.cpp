@@ -30,7 +30,7 @@ std::string PitchMessage::getParameter(std::string param) const
 {
     auto paramsIt = params.find(param);
     if (paramsIt == params.end()) {
-        return "";
+        throw std::runtime_error("Parameter \"" + param + "\" not found.");
     }
 
     return paramsIt->second;
@@ -50,7 +50,47 @@ std::string PitchMessage::string() const
     return pitchString;
 }
 
+char PitchMessage::display() const
+{
+    return getParameter("Display").at(0);
+}
+
+std::string PitchMessage::execId() const
+{
+    return getParameter("ExecutionID");
+}
+
+char PitchMessage::side() const
+{
+    return getParameter("Side").at(0);
+}
+
 char PitchMessage::type() const
 {
     return msgType;
+}
+
+int PitchMessage::price() const
+{
+    return std::stoi(getParameter("Price"));
+}
+
+int PitchMessage::shares() const
+{
+    return std::stoi(getParameter("Shares"));
+}
+
+int PitchMessage::timestamp() const
+{
+    return std::stoi(getParameter("Timestamp"));
+}
+
+std::string PitchMessage::id() const
+{
+    return getParameter("OrderID");
+}
+
+std::string PitchMessage::symbol() const
+{
+    return getParameter("Symbol");
 }

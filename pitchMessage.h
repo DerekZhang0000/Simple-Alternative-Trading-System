@@ -50,6 +50,16 @@ class PitchMessage
      */
     std::string getParameter(std::string param) const;
 
+    char display()          const;
+    std::string execId()    const;
+    char side()             const;
+    char type()             const;
+    int price()             const;
+    int shares()            const;
+    int timestamp()         const;
+    std::string id()        const;
+    std::string symbol()    const;
+
     /**
      * @brief Returns the PITCH message as a string
      * 
@@ -57,12 +67,6 @@ class PitchMessage
      */
     std::string string() const;
 
-    /**
-     * @brief Returns the PITCH message type
-     * 
-     * @return char 
-     */
-    char type() const;
 };
 
 #endif
