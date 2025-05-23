@@ -14,28 +14,23 @@
 
 #include "order.h"
 #include <vector>
-#include <queue>
+#include <deque>
 
 class OrderQueue
 {
     private:
-    char side;      // B or S
-    int queuePrice; // value in cents
-    std::priority_queue<Order*> orderQueue = {};
+    char side;          // B or S
+    double queuePrice;  // value in USD
+    std::deque<Order*> orderQueue = {};
 
     public:
     /**
-     * @brief Construct a new Order Queue object with a new Order object
+     * @brief Construct a new Order Queue object with the price
      * 
-     * @param order 
+     * @param price
      */
-    OrderQueue(Order* orderPtr);
-
-    /**
-     * @brief Destroy the Order Queue object
-     * 
-     */
-    ~OrderQueue();
+    OrderQueue(double& queuePrice);
+    ~OrderQueue() = default;
 
     /**
      * @brief Returns the price of the orders in the queue
@@ -43,15 +38,6 @@ class OrderQueue
      * @return int 
      */
     int price() const;
-
-    /**
-     * @brief Overloaded comparison operator to sort by price priority
-     * 
-     * @param otherQueue 
-     * @return true 
-     * @return false 
-     */
-    bool operator<(const OrderQueue &otherQueue) const;
 
     /**
      * @brief Insert an order object into the queue
@@ -79,7 +65,7 @@ class OrderQueue
      * 
      * @return int 
      */
-    int OrderQueue::empty() const;
+    int empty() const;
 };
 
 #endif

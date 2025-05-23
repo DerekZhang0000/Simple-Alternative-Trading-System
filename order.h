@@ -12,6 +12,8 @@
 #ifndef ORDER_H
 #define ORDER_H
 
+#include <string>
+
 class Order
 {
     private:
@@ -19,6 +21,7 @@ class Order
     int orderPrice;     // value in cents
     char orderSide;     // B or S
     int orderTimestamp; // milliseconds since midnight
+    std::string id;
 
     public:
     /**
@@ -29,7 +32,7 @@ class Order
      * @param side 
      * @param timestamp 
      */
-    Order(int shares, int price, char side, int timestamp);
+    Order(int shares, int price, char side);
     ~Order() = default;
 
     int price()         const;
@@ -43,15 +46,6 @@ class Order
      * @return int 
      */
     int tradeShares(int shareDelta);
-
-    /**
-     * @brief Overloaded comparison operator to sort by time priority
-     * 
-     * @param otherOrder 
-     * @return true 
-     * @return false 
-     */
-    bool operator<(const Order& otherOrder) const;
 
 };
 

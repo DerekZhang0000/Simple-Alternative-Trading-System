@@ -29,11 +29,6 @@ int Order::tradeShares(int shareDelta)
     }
 }
 
-bool Order::operator<(const Order& otherOrder) const
-{
-    return orderTimestamp > otherOrder.orderTimestamp;    // Greater timestamps are younger, and have lower priority
-}
-
 int Order::price() const
 {
     return orderPrice;

@@ -14,7 +14,7 @@
 
 #include <stdexcept>
 
-typedef std::unordered_map<std::string, std::priority_queue<OrderQueue>>::iterator BookIterator;
+typedef Book::iterator BookIterator;
 
 MatchingEngine::~MatchingEngine()
 {
@@ -30,14 +30,16 @@ void MatchingEngine::addOrder(PitchMessage const &msg)
 {
     std::string symbol = msg.symbol();
     char side = msg.side();
-    Order* newOrder = new Order(msg.shares(), msg.price(), side, msg.timestamp());
+    Order* newOrder = new Order(msg.shares(), msg.price(), side, msg.timestamp(), msg.id());
+
+    attemptTrade(newOrder, symbol); // attempt trade, if no trade occurs or leftover shares, insert
 
     BookIterator bookIt;
     if (side == 'B') {
         bookIt = buyBook.find(symbol);
     } else if (side == 'S') {
         bookIt = sellBook.find(symbol);
-    } else {
+    } else [[unlikely]] {
         throw std::runtime_error("Unexpected side for Matching Engine Add Order ingestion.");
     }
 
@@ -46,8 +48,6 @@ void MatchingEngine::addOrder(PitchMessage const &msg)
     } else {
         buyBook[symbol].push(newOrder);
     }
-
-    attemptTrade(newOrder, symbol);
 }
 
 std::optional<PitchMessage> MatchingEngine::attemptTrade(Order* incomingOrder, std::string const &symbol)
@@ -60,10 +60,10 @@ std::optional<PitchMessage> MatchingEngine::attemptTrade(Order* incomingOrder, s
             return std::nullopt;
         }
         
-        OrderQueue const &bestSellQueue(bookIt->second.top())
+        OrderQueue bestSellQueue(bookIt->second.top());
         int const &bestSellPrice = bestSellQueue.price();
         while (bestSellPrice >= incomingOrder->price() && incomingOrder->shares() > 0) {
-            Order* firstSellOrder bookIt
+            Order* firstSellOrder = bookIt->second.top().front();
         }
     } else {
         bookIt = buyBook.find(symbol);

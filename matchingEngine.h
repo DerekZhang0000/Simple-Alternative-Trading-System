@@ -17,13 +17,16 @@
 #include "pitchMessage.h"
 
 #include <string>
+#include <boost/container/flat_map.hpp>
 #include <unordered_map>
 #include <optional>
 
+typedef std::unordered_map<std::string, boost::container::flat_map<double, OrderQueue>> Book;
+
 class MatchingEngine {
     private:
-    std::unordered_map<std::string, std::priority_queue<OrderQueue>> buyBook = {};
-    std::unordered_map<std::string, std::priority_queue<OrderQueue>> sellBook = {};
+    Book buyBook = {};
+    Book sellBook = {};
     std::unordered_map<std::string, Order*> idMap = {};
 
     public:
@@ -64,7 +67,7 @@ class MatchingEngine {
      * @param symbol 
      * @return PitchMessage 
      */
-    std::optional<PitchMessage> attemptTrade(Order* incomingOrder, std::string const &symbol); 
+    inline std::optional<PitchMessage> attemptTrade(Order* incomingOrder, std::string const &symbol); 
 };
 
 #endif
