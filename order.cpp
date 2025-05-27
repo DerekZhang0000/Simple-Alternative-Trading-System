@@ -11,25 +11,20 @@
 
 #include "order.h"
 
-Order::Order(int newShares, int newPrice, char newSide, int newTimestamp)
+Order::Order(int newShares, double newPrice, char newSide, std::string newId)
 {
     orderShares = newShares;
     orderPrice = newPrice;
-    orderSide = newPrice;
-    orderTimestamp = newTimestamp;
+    orderSide = newSide;
+    orderId = newId;
 }
 
-int Order::tradeShares(int shareDelta)
+void Order::tradeShares(int shareDelta)
 {
     orderShares -= shareDelta;
-    if (orderShares == 0) {
-        return 0;
-    } else if (orderShares < 0) {
-        return -orderShares;
-    }
 }
 
-int Order::price() const
+double Order::price() const
 {
     return orderPrice;
 }
@@ -42,9 +37,4 @@ int Order::shares() const
 char Order::side() const
 {
     return orderSide;
-}
-
-int Order::timestamp() const
-{
-    return orderTimestamp;
 }

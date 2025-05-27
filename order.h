@@ -18,10 +18,9 @@ class Order
 {
     private:
     int orderShares;
-    int orderPrice;     // value in cents
-    char orderSide;     // B or S
-    int orderTimestamp; // milliseconds since midnight
-    std::string id;
+    double orderPrice;      // value in cents
+    char orderSide;         // B or S
+    std::string orderId;    // id string
 
     public:
     /**
@@ -32,20 +31,19 @@ class Order
      * @param side 
      * @param timestamp 
      */
-    Order(int shares, int price, char side);
+    Order(int shares, double price, char side, std::string orderId);
     ~Order() = default;
 
-    int price()         const;
+    double price()      const;
     int shares()        const;
     char side()         const;
-    int timestamp()     const;
 
     /**
-     * @brief Modifies the share count, returning the difference if more shares were traded than exist
+     * @brief Decreases the Order share count
      * @param shareDelta 
      * @return int 
      */
-    int tradeShares(int shareDelta);
+    void tradeShares(int shareDelta);
 
 };
 

@@ -13,15 +13,18 @@
 #define MATCHINGENGINE_H
 
 #include "order.h"
-#include "orderQueue.h"
 #include "pitchMessage.h"
 
 #include <string>
 #include <boost/container/flat_map.hpp>
 #include <unordered_map>
 #include <optional>
+#include <deque>
 
-typedef std::unordered_map<std::string, boost::container::flat_map<double, OrderQueue>> Book;
+typedef boost::container::flat_map<double, std::deque<Order*>> PriceMap;
+typedef boost::container::vec_iterator<std::pair<double, std::deque<Order*>>*, false> PriceMapIterator;
+typedef std::unordered_map<std::string, PriceMap> Book;
+typedef Book::iterator BookIterator;
 
 class MatchingEngine {
     private:
@@ -38,36 +41,62 @@ class MatchingEngine {
      * 
      * @param msg 
      */
-    void ingestMessage(PitchMessage const &msg);
+    void ingestMessage(PitchMessage const & msg);
+
+    /**
+     * @brief Locates an order book given a ticker symbol and buy/sell side
+     * 
+     * @param symbol 
+     * @param side 
+     * @return BookIterator 
+     */
+    BookIterator locateBook(std::string const & symbol, char side);
 
     /**
      * @brief Adds an order to the order book, then executes trades if possible
      * 
      * @param msg 
      */
-    void addOrder(PitchMessage const &msg);
+    void addOrder(PitchMessage const & msg);
     
     /**
      * @brief Cancels a certain number of shares in an order
      * 
      * @param msg 
      */
-    void cancelOrder(PitchMessage const &msg);
+    void cancelOrder(PitchMessage const & msg);
 
     /**
      * @brief Forwards a trade message to data collection service
      * 
      * @param msg 
      */
-    void forwardTrade(PitchMessage const &msg);
-    
+    void forwardTrade(PitchMessage const & msg);
+
     /**
-     * @brief Attempts to make trades on a symbol for matching orders on the buy and sell sides, returning an Executed Order PITCH message if successful
+     * @brief Returns an iterator pointing to the best order match for a given symbol, side, and price, if one exists
      * 
-     * @param symbol 
+     * @param oppositeBookIt 
+     * @param side 
+     * @param limitPrice 
+     * @return std::optional<Order*> 
+     */
+    std::optional<PriceMapIterator> matchOrder(BookIterator const & oppositeBookIt, char const side, double const limitPrice);
+
+    /**
+     * @brief Attempts to make trades on a symbol for matching orders on the buy and sell sides, returning an updated Order if there are any remaining shares
+     * 
+     * @param symbol
      * @return PitchMessage 
      */
-    inline std::optional<PitchMessage> attemptTrade(Order* incomingOrder, std::string const &symbol); 
+    inline std::optional<Order*> attemptTrade(Order* incomingOrder, std::string const & symbol);
+
+    /**
+     * @brief Initializes empty order queues on the buy and sell books for provided symbols, ran once on spin up
+     * 
+     * @param symbolList 
+     */
+    void populateSymbols(std::vector<std::string> const & symbolList);
 };
 
 #endif

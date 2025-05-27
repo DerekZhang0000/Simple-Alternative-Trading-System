@@ -14,8 +14,6 @@
 
 #include <stdexcept>
 
-typedef Book::iterator BookIterator;
-
 MatchingEngine::~MatchingEngine()
 {
     for (auto & pair : idMap) {
@@ -26,64 +24,123 @@ MatchingEngine::~MatchingEngine()
     idMap.clear();
 }
 
-void MatchingEngine::addOrder(PitchMessage const &msg)
+BookIterator MatchingEngine::locateBook(std::string const & symbol, char side)
+{
+    if (side == 'B') {
+        return buyBook.find(symbol);
+    } else if (side == 'S') {
+        return sellBook.find(symbol);
+    } else [[unlikely]] {
+        throw std::runtime_error("Unexpected side for book location.");
+    }
+}
+
+void MatchingEngine::populateSymbols(std::vector<std::string> const & symbolList)
+{
+    for (std::string const & symbol : symbolList) {
+        buyBook.emplace(new PriceMap());
+        sellBook.emplace(new PriceMap());
+    }
+}
+
+void MatchingEngine::addOrder(PitchMessage const & msg)
 {
     std::string symbol = msg.symbol();
     char side = msg.side();
-    Order* newOrder = new Order(msg.shares(), msg.price(), side, msg.timestamp(), msg.id());
+    double price = msg.price();
+    Order* newOrder = new Order(msg.shares(), price, side, msg.id());
 
-    attemptTrade(newOrder, symbol); // attempt trade, if no trade occurs or leftover shares, insert
+    std::optional<Order*> revisedOrder = attemptTrade(newOrder, symbol); // attempt trade, if no trade occurs or leftover shares, insert
+    if (revisedOrder == std::nullopt) {
+        return;
+    }
 
-    BookIterator bookIt;
     if (side == 'B') {
-        bookIt = buyBook.find(symbol);
+        buyBook[symbol][price].push_back(revisedOrder.value());
     } else if (side == 'S') {
-        bookIt = sellBook.find(symbol);
+        sellBook[symbol][price].push_back(revisedOrder.value());
     } else [[unlikely]] {
-        throw std::runtime_error("Unexpected side for Matching Engine Add Order ingestion.");
-    }
-
-    if (bookIt == buyBook.end()) {
-        buyBook.emplace(symbol, OrderQueue(newOrder));
-    } else {
-        buyBook[symbol].push(newOrder);
+        throw std::runtime_error("Unexpected side for Add Order ingestion.");
     }
 }
 
-std::optional<PitchMessage> MatchingEngine::attemptTrade(Order* incomingOrder, std::string const &symbol)
+std::optional<PriceMapIterator> MatchingEngine::matchOrder(BookIterator const & oppositeBookIt, char const side, double const limitPrice)
 {
-    char const &side = incomingOrder->side();
-    BookIterator bookIt;
-    if (side == 'B') {  // The opposite book is where the order will try to be matched, hence why lower sale prices and higher buy prices are prioritized
-        bookIt = sellBook.find(symbol);
-        if (bookIt == sellBook.end()) {
-            return std::nullopt;
+    if (side == 'B') {
+        auto queueIt = oppositeBookIt->second.lower_bound(0.0);
+        while (queueIt != oppositeBookIt->second.end() && queueIt->first <= limitPrice) {
+            if (!queueIt->second.empty()) {
+                return queueIt;
+            }
+            ++queueIt;
         }
-        
-        OrderQueue bestSellQueue(bookIt->second.top());
-        int const &bestSellPrice = bestSellQueue.price();
-        while (bestSellPrice >= incomingOrder->price() && incomingOrder->shares() > 0) {
-            Order* firstSellOrder = bookIt->second.top().front();
+    } else if (side == 'S') {
+        auto queueIt = oppositeBookIt->second.upper_bound(limitPrice);
+        while (queueIt != oppositeBookIt->second.begin()) {
+            --queueIt;
+            if (queueIt->first >= limitPrice && !queueIt->second.empty()) {
+                return queueIt;
+            }
         }
-    } else {
-        bookIt = buyBook.find(symbol);
-        if (bookIt == buyBook.end()) {
-            return std::nullopt;
-        }
-    }   // No error checking required since symbol is passed in after check
+    }
+
+    return std::nullopt;
 }
 
-void MatchingEngine::cancelOrder(PitchMessage const &msg)
+std::optional<Order*> MatchingEngine::attemptTrade(Order* incomingOrder, std::string const & symbol)
+{
+    char const side = incomingOrder->side();
+    double const price = incomingOrder->price();
+    char const oppositeSide = side == 'B' ? 'S' : 'B';
+    Book & oppositeBook = side == 'B' ? sellBook : buyBook;
+    BookIterator oppositeBookIt = locateBook(symbol, oppositeSide); // The opposite book is where the order will try to be matched, hence why lower sale prices and higher buy prices are prioritized
+    PriceMap & oppositePriceMap = oppositeBook[symbol];
+    
+    if (oppositeBookIt == oppositeBook.end()) {
+        return std::nullopt;
+    }
+
+    std::optional<PriceMapIterator> priceMapIt = matchOrder(oppositeBookIt, side, price);
+    while (priceMapIt != std::nullopt) {
+        std::deque<Order*> & orderQueue = priceMapIt.value()->second;
+        while (orderQueue.size() > 0) {
+            Order*& queuedOrder = orderQueue.at(0);
+            int shareDelta = std::min(queuedOrder->shares(), incomingOrder->shares());
+            queuedOrder->tradeShares(shareDelta);
+            incomingOrder->tradeShares(shareDelta);
+
+            if (queuedOrder->shares() == 0) {
+                delete queuedOrder;
+                orderQueue.erase(orderQueue.begin());
+            } else [[unlikely]] {
+                throw std::runtime_error("Negative share count result in trade attempt.");
+            }
+
+            if (incomingOrder->shares() == 0) {
+                return std::nullopt;
+            } else if (incomingOrder->shares() < 0) [[unlikely]] {
+                throw std::runtime_error("Negative share count result in trade attempt.");
+            }
+        }
+
+        oppositePriceMap.erase(priceMapIt.value());
+        priceMapIt = matchOrder(oppositeBookIt, side, price);
+    }
+
+    return incomingOrder;
+}
+
+void MatchingEngine::cancelOrder(PitchMessage const & msg)
 {
 
 }
 
-void MatchingEngine::forwardTrade(PitchMessage const &msg)
+void MatchingEngine::forwardTrade(PitchMessage const & msg)
 {
 
 }
 
-void MatchingEngine::ingestMessage(PitchMessage const &msg)
+void MatchingEngine::ingestMessage(PitchMessage const & msg)
 {
     char msgType = msg.type();
     switch (msgType)
