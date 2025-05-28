@@ -12,12 +12,10 @@
 #include "pitchMessage.h"
 #include <stdexcept>
 
-PitchMessage::PitchMessage(char newMsgType, std::vector<std::string> fieldList)
+PitchMessage::PitchMessage(std::string newMsgType, std::vector<std::string> fieldList)
 {
     msgFields = fieldList;
-    msgType = newMsgType;
-    std::string msgTypeStr{newMsgType};
-    setParameter("Message Type", msgTypeStr);
+    setParameter("MessageType", newMsgType);
 }
 
 PitchMessage PitchMessage::setParameter(std::string param, std::string value)
@@ -29,7 +27,7 @@ PitchMessage PitchMessage::setParameter(std::string param, std::string value)
 std::string PitchMessage::getParameter(std::string param) const
 {
     auto paramsIt = params.find(param);
-    if (paramsIt == params.end()) {
+    if (paramsIt == params.end()) [[unlikely]] {
         throw std::runtime_error("Parameter \"" + param + "\" not found.");
     }
 
@@ -41,7 +39,7 @@ std::string PitchMessage::string() const
     std::string pitchString = "S";
     for (std::string fieldName : msgFields) {
         auto paramsPtr = params.find(fieldName);
-        if (paramsPtr == params.end()) {
+        if (paramsPtr == params.end()) [[unlikely]] {
             throw std::runtime_error("Message missing required parameter " + fieldName + ".");
         }
         pitchString += paramsPtr->second;
@@ -67,12 +65,12 @@ char PitchMessage::side() const
 
 char PitchMessage::type() const
 {
-    return msgType;
+    return getParameter("MessageType").at(0);
 }
 
-int PitchMessage::price() const
+double PitchMessage::price() const
 {
-    return std::stoi(getParameter("Price"));
+    return std::stod(getParameter("Price")) / 10000;
 }
 
 int PitchMessage::shares() const

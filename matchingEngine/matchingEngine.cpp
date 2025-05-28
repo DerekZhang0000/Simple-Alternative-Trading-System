@@ -38,8 +38,8 @@ BookIterator MatchingEngine::locateBook(std::string const & symbol, char side)
 void MatchingEngine::populateSymbols(std::vector<std::string> const & symbolList)
 {
     for (std::string const & symbol : symbolList) {
-        buyBook.emplace(new PriceMap());
-        sellBook.emplace(new PriceMap());
+        buyBook.emplace(std::pair<const std::string, PriceMap>(symbol, PriceMap()));
+        sellBook.emplace(std::pair<const std::string, PriceMap>(symbol, PriceMap()));
     }
 }
 
@@ -108,6 +108,7 @@ std::optional<Order*> MatchingEngine::attemptTrade(Order* incomingOrder, std::st
             int shareDelta = std::min(queuedOrder->shares(), incomingOrder->shares());
             queuedOrder->tradeShares(shareDelta);
             incomingOrder->tradeShares(shareDelta);
+            // Create execute order and send here
 
             if (queuedOrder->shares() == 0) {
                 delete queuedOrder;

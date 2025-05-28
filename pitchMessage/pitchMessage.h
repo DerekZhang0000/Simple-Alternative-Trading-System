@@ -19,7 +19,6 @@
 class PitchMessage
 {
     private:
-    char msgType;
     std::unordered_map<std::string, std::string> params;
     std::vector<std::string> msgFields;
 
@@ -31,7 +30,7 @@ class PitchMessage
      * 
      * @param msgType 
      */
-    PitchMessage(char msgType, std::vector<std::string> msgFields);
+    PitchMessage(std::string msgType, std::vector<std::string> msgFields);
 
     /**
      * @brief Sets a parameter and returns self
@@ -54,7 +53,7 @@ class PitchMessage
     std::string execId()    const;
     char side()             const;
     char type()             const;
-    int price()             const;
+    double price()          const;
     int shares()            const;
     int timestamp()         const;
     std::string id()        const;

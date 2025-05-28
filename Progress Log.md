@@ -11,3 +11,7 @@
 - Created architecture diagrams and documentation
 - Removed the Order Queue class
 - Completed Add Order ingestion functionality
+### 5/27
+- Reorganized project file structure
+- Replaced Makefile with CMake usage
+- Created PITCH Add Order unit test with Boost Test

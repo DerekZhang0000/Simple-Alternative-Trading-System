@@ -27,9 +27,9 @@ class Order
      * @brief Construct a new Order object
      * 
      * @param shares 
-     * @param price
+     * @param price 
      * @param side 
-     * @param timestamp 
+     * @param orderId 
      */
     Order(int shares, double price, char side, std::string orderId);
     ~Order() = default;

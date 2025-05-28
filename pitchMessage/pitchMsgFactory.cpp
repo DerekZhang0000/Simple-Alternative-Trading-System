@@ -15,16 +15,16 @@ PitchMessage PitchMsgFactory::createPitchMsg(MSG_TYPE msgType)
 {
     switch (msgType){
         case MSG_TYPE::ADD:
-            return PitchMessage('A', addOrderFields);
+            return PitchMessage("A", addOrderFields);
             break;
         case MSG_TYPE::CANCEL:
-            return PitchMessage('X', cancelOrderFields);
+            return PitchMessage("X", cancelOrderFields);
             break;
         case MSG_TYPE::EXECUTE:
-            return PitchMessage('E', execOrderFields);
+            return PitchMessage("E", execOrderFields);
             break;
         case MSG_TYPE::TRADE:
-            return PitchMessage('P', tradeMsgFields);
+            return PitchMessage("P", tradeMsgFields);
             break;
     }
 }

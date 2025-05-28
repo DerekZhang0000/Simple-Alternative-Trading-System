@@ -1,10 +1,10 @@
 Core Functionality
 DONE Create message class
-Create matching engine and order book architecture
+IN-PROCESS Create matching engine and order book architecture
+IN-PROCESS Set up testing
 Create trading simulator
-Set up testing and logging
-Create visualization tools
 Add data collection and analysis
+Create visualization tools
 
 Bonus Tasks
 Use FIX protocol for order inputs instead of PITCH
