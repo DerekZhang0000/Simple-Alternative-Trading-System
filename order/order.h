@@ -17,6 +17,7 @@
 class Order
 {
     private:
+    std::string orderSymbol;
     int orderShares;
     double orderPrice;      // value in cents
     char orderSide;         // B or S
@@ -26,22 +27,24 @@ class Order
     /**
      * @brief Construct a new Order object
      * 
+     * @param symbol
      * @param shares 
      * @param price 
      * @param side 
      * @param orderId 
      */
-    Order(int shares, double price, char side, std::string orderId);
+    Order(std::string symbol, int shares, double price, char side, std::string orderId);
     ~Order() = default;
 
-    double price()      const;
-    int shares()        const;
-    char side()         const;
+    std::string symbol()    const;
+    double price()          const;
+    int shares()            const;
+    char side()             const;
+    std::string id()        const;
 
     /**
      * @brief Decreases the Order share count
      * @param shareDelta 
-     * @return int 
      */
     void tradeShares(int shareDelta);
 

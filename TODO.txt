@@ -5,8 +5,9 @@ IN-PROCESS Set up testing
 Create trading simulator
 Add data collection and analysis
 Create visualization tools
-
-Bonus Tasks
 Use FIX protocol for order inputs instead of PITCH
-Implement options / build barone-adesi whaley model
-Host on the internet
+Polish everything and refactor code
+Update documentation
+
+Bonus
+Host online?

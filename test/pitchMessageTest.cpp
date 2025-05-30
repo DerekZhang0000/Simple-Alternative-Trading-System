@@ -24,7 +24,7 @@ BOOST_AUTO_TEST_CASE(createAddOrder)
     BOOST_REQUIRE(msg.getParameter("MessageType") == "A");
     BOOST_REQUIRE(msg.type() == 'A');
 
-    BOOST_REQUIRE_THROW(msg.string(), std::runtime_error);
+    BOOST_REQUIRE_THROW(msg.string(), std::runtime_error);  // Creating message string with missing parameters throws an error
 
     BOOST_REQUIRE_THROW(msg.getParameter("Timestamp"), std::runtime_error);
     msg.setParameter("Timestamp", "12345678");
@@ -63,5 +63,23 @@ BOOST_AUTO_TEST_CASE(createAddOrder)
 
     BOOST_REQUIRE(msg.string() == "S12345678A1234567890ABB000100   SPY0001000000Y");
 }
+
+// MOVE TO MATCHING ENGINE TEST
+// BOOST_AUTO_TEST_CASE(createCancelOrder)
+// {
+//     auto factory = PitchMsgFactory();
+//     auto addOrderMsg = factory.createPitchMsg(PitchMsgFactory::MSG_TYPE::ADD);
+//     addOrderMsg.setParameter("Timestamp", "12345678");
+//     addOrderMsg.setParameter("OrderID", "1234567890AB");
+//     addOrderMsg.setParameter("Side", "B");
+//     addOrderMsg.setParameter("Shares", "000100");
+//     addOrderMsg.setParameter("Symbol", "   SPY");
+//     addOrderMsg.setParameter("Price", "0001000000");
+//     addOrderMsg.setParameter("Display", "Y");
+
+//     auto cancelOrderMsg = factory.createPitchMsg(PitchMsgFactory::MSG_TYPE::CANCEL);
+//     addOrderMsg.setParameter("Symbol", "   SPY");
+//     addOrderMsg.setParameter("Shares", "000100");
+// }
 
 BOOST_AUTO_TEST_SUITE_END()

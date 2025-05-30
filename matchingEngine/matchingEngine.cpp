@@ -48,7 +48,7 @@ void MatchingEngine::addOrder(PitchMessage const & msg)
     std::string symbol = msg.symbol();
     char side = msg.side();
     double price = msg.price();
-    Order* newOrder = new Order(msg.shares(), price, side, msg.id());
+    Order* newOrder = new Order(msg.symbol(), msg.shares(), price, side, msg.id());
 
     std::optional<Order*> revisedOrder = attemptTrade(newOrder, symbol); // attempt trade, if no trade occurs or leftover shares, insert
     if (revisedOrder == std::nullopt) {
@@ -131,14 +131,43 @@ std::optional<Order*> MatchingEngine::attemptTrade(Order* incomingOrder, std::st
     return incomingOrder;
 }
 
+OrderQueue MatchingEngine::locateOrderQueue(std::string const & orderId)
+{
+    auto idMapIt = idMap.find(orderId);
+    if (idMapIt == idMap.end()) [[unlikely]] {
+        throw std::runtime_error("Order ID not found in ID map.");
+    }
+
+    Order* order = idMapIt->second;
+    char side = order->side();
+    Book& book = side == 'B' ? buyBook : sellBook;
+    OrderQueue& queue = book[order->symbol()][order->price()];
+
+    return queue;
+}
+
 void MatchingEngine::cancelOrder(PitchMessage const & msg)
 {
+    std::string const & orderId = msg.id();
+    OrderQueue queue = locateOrderQueue(orderId);
+    for (auto queueIt = queue.begin(); queueIt != queue.end(); ++queueIt) {
+        if ((*queueIt)->id() == orderId) {
+            int cancelShares = msg.shares();
+            (*queueIt)->tradeShares(cancelShares);
 
+            if ((*queueIt)->shares() <= 0) {
+                queue.erase(queueIt);
+            }
+            return;
+        }
+    }
+
+    throw std::runtime_error("Order not found in queue.");
 }
 
 void MatchingEngine::forwardTrade(PitchMessage const & msg)
 {
-
+    // Forward to data collection service when implemented
 }
 
 void MatchingEngine::ingestMessage(PitchMessage const & msg)

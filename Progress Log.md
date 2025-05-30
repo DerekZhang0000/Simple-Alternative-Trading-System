@@ -13,5 +13,7 @@
 - Completed Add Order ingestion functionality
 ### 5/27
 - Reorganized project file structure
-- Replaced Makefile with CMake usage
+- Replaced Makefile with CMake
 - Created PITCH Add Order unit test with Boost Test
+### 5/29
+- Completed Cancel Order ingestion functionality

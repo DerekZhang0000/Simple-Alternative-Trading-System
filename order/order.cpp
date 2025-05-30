@@ -11,8 +11,9 @@
 
 #include "order.h"
 
-Order::Order(int newShares, double newPrice, char newSide, std::string newId)
+Order::Order(std::string newSymbol, int newShares, double newPrice, char newSide, std::string newId)
 {
+    orderSymbol = newSymbol;
     orderShares = newShares;
     orderPrice = newPrice;
     orderSide = newSide;
@@ -22,6 +23,11 @@ Order::Order(int newShares, double newPrice, char newSide, std::string newId)
 void Order::tradeShares(int shareDelta)
 {
     orderShares -= shareDelta;
+}
+
+std::string Order::symbol() const
+{
+    return orderSymbol;
 }
 
 double Order::price() const
@@ -37,4 +43,9 @@ int Order::shares() const
 char Order::side() const
 {
     return orderSide;
+}
+
+std::string Order::id() const
+{
+    return orderId;
 }

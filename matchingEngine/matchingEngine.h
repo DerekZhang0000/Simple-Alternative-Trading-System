@@ -21,6 +21,8 @@
 #include <optional>
 #include <deque>
 
+typedef std::deque<Order*> OrderQueue;
+typedef std::deque<Order*>::iterator OrderQueueIterator;
 typedef boost::container::flat_map<double, std::deque<Order*>> PriceMap;
 typedef boost::container::vec_iterator<std::pair<double, std::deque<Order*>>*, false> PriceMapIterator;
 typedef std::unordered_map<std::string, PriceMap> Book;
@@ -34,7 +36,7 @@ class MatchingEngine {
 
     public:
     MatchingEngine() = default;
-    ~MatchingEngine();
+    ~MatchingEngine() = default;
 
     /**
      * @brief Ingests a message and performs a corresponding action
@@ -58,7 +60,15 @@ class MatchingEngine {
      * @param msg 
      */
     void addOrder(PitchMessage const & msg);
-    
+
+    /**
+     * @brief Returns an iterator pointing to an order given its ID
+     * 
+     * @param orderId 
+     * @return OrderQueueIterator 
+     */
+    OrderQueue locateOrderQueue(std::string const & orderId);
+
     /**
      * @brief Cancels a certain number of shares in an order
      * 
