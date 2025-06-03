@@ -17,3 +17,6 @@
 - Created PITCH Add Order unit test with Boost Test
 ### 5/29
 - Completed Cancel Order ingestion functionality
+### 6/2
+- Refactored unit testing compilation
+- Added unit tests for Matching Engine

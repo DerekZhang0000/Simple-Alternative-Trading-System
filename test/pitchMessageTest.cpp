@@ -11,9 +11,9 @@
 
 #define BOOST_TEST_MODULE PITCHMessageTests
 
-#include <boost/test/included/unit_test.hpp>
+#include <boost/test/unit_test.hpp>
 
-#include "pitchMsgFactory.h";
+#include "pitchMsgFactory.h"
 
 BOOST_AUTO_TEST_SUITE(pitchMessageTests)
 
@@ -64,22 +64,31 @@ BOOST_AUTO_TEST_CASE(createAddOrder)
     BOOST_REQUIRE(msg.string() == "S12345678A1234567890ABB000100   SPY0001000000Y");
 }
 
-// MOVE TO MATCHING ENGINE TEST
-// BOOST_AUTO_TEST_CASE(createCancelOrder)
-// {
-//     auto factory = PitchMsgFactory();
-//     auto addOrderMsg = factory.createPitchMsg(PitchMsgFactory::MSG_TYPE::ADD);
-//     addOrderMsg.setParameter("Timestamp", "12345678");
-//     addOrderMsg.setParameter("OrderID", "1234567890AB");
-//     addOrderMsg.setParameter("Side", "B");
-//     addOrderMsg.setParameter("Shares", "000100");
-//     addOrderMsg.setParameter("Symbol", "   SPY");
-//     addOrderMsg.setParameter("Price", "0001000000");
-//     addOrderMsg.setParameter("Display", "Y");
+BOOST_AUTO_TEST_CASE(createCancelOrder)
+{
+    auto factory = PitchMsgFactory();
+    auto msg = factory.createPitchMsg(PitchMsgFactory::MSG_TYPE::CANCEL);
+    BOOST_REQUIRE(msg.getParameter("MessageType") == "X");
+    BOOST_REQUIRE(msg.type() == 'X');
 
-//     auto cancelOrderMsg = factory.createPitchMsg(PitchMsgFactory::MSG_TYPE::CANCEL);
-//     addOrderMsg.setParameter("Symbol", "   SPY");
-//     addOrderMsg.setParameter("Shares", "000100");
-// }
+    BOOST_REQUIRE_THROW(msg.string(), std::runtime_error);
+
+    BOOST_REQUIRE_THROW(msg.getParameter("Timestamp"), std::runtime_error);
+    msg.setParameter("Timestamp", "12345678");
+    BOOST_REQUIRE(msg.getParameter("Timestamp") == "12345678");
+    BOOST_REQUIRE(msg.timestamp() == 12345678);
+
+    BOOST_REQUIRE_THROW(msg.getParameter("OrderID"), std::runtime_error);
+    msg.setParameter("OrderID", "1234567890AB");
+    BOOST_REQUIRE(msg.getParameter("OrderID") == "1234567890AB");
+    BOOST_REQUIRE(msg.id() == "1234567890AB");
+
+    BOOST_REQUIRE_THROW(msg.getParameter("Shares"), std::runtime_error);
+    msg.setParameter("Shares", "000100");
+    BOOST_REQUIRE(msg.getParameter("Shares") == "000100");
+    BOOST_REQUIRE(msg.shares() == 100);
+
+    BOOST_REQUIRE(msg.string() == "S12345678X1234567890AB000100");
+}
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -38,8 +38,8 @@ BookIterator MatchingEngine::locateBook(std::string const & symbol, char side)
 void MatchingEngine::populateSymbols(std::vector<std::string> const & symbolList)
 {
     for (std::string const & symbol : symbolList) {
-        buyBook.emplace(std::pair<const std::string, PriceMap>(symbol, PriceMap()));
-        sellBook.emplace(std::pair<const std::string, PriceMap>(symbol, PriceMap()));
+        buyBook.emplace(symbol, PriceMap());
+        sellBook.emplace(symbol, PriceMap());
     }
 }
 
@@ -197,3 +197,13 @@ void MatchingEngine::ingestMessage(PitchMessage const & msg)
     }
 }
 
+Book& MatchingEngine::getBook(char side)
+{
+    if (side == 'B') {
+        return buyBook;
+    } else if (side == 'C') {
+        return sellBook;
+    } else [[unlikely]] {
+        throw std::runtime_error("Unexpected side for getting book.");
+    }
+}

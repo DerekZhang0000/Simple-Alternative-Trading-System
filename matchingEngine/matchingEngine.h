@@ -36,7 +36,7 @@ class MatchingEngine {
 
     public:
     MatchingEngine() = default;
-    ~MatchingEngine() = default;
+    ~MatchingEngine();
 
     /**
      * @brief Ingests a message and performs a corresponding action
@@ -107,6 +107,14 @@ class MatchingEngine {
      * @param symbolList 
      */
     void populateSymbols(std::vector<std::string> const & symbolList);
+
+    /**
+     * @brief Get the Book object for a specified side
+     * 
+     * @param side 
+     * @return Book& 
+     */
+    Book& getBook(char side);
 };
 
 #endif

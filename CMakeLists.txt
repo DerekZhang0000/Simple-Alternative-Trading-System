@@ -8,6 +8,13 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/../bin)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/../bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/../bin)
 
+set(BOOST_ROOT "C:/local/boost_1_88_0")
+set(BOOST_INCLUDEDIR "${BOOST_ROOT}")
+set(BOOST_LIBRARYDIR "${BOOST_ROOT}/stage/lib")
+set(Boost_USE_STATIC_LIBS ON)
+
+find_package(Boost REQUIRED COMPONENTS unit_test_framework)
+
 file(GLOB_RECURSE MAIN_SOURCES
     "${CMAKE_SOURCE_DIR}/matchingEngine/*.cpp"
     "${CMAKE_SOURCE_DIR}/order/*.cpp"
@@ -18,7 +25,6 @@ file(GLOB_RECURSE MAIN_SOURCES
 )
 
 add_executable(WorseAlternativeTradingSystem ${MAIN_SOURCES})
-
 target_include_directories(WorseAlternativeTradingSystem PRIVATE
     "${CMAKE_SOURCE_DIR}/matchingEngine"
     "${CMAKE_SOURCE_DIR}/order"
@@ -26,35 +32,40 @@ target_include_directories(WorseAlternativeTradingSystem PRIVATE
     "${CMAKE_SOURCE_DIR}/traderPool"
     "${CMAKE_SOURCE_DIR}/dataService"
     "${CMAKE_SOURCE_DIR}/sim"
-    "C:/local/boost_1_88_0"
+    "${BOOST_INCLUDEDIR}"
 )
 
 # TESTING
 enable_testing()
 
-set(BOOST_ROOT "C:/local/boost_1_88_0")
-set(BOOST_INCLUDEDIR "${BOOST_ROOT}")
+file(GLOB MATCHING_ENGINE_SOURCES "${CMAKE_SOURCE_DIR}/matchingEngine/*.cpp")
+file(GLOB ORDER_SOURCES "${CMAKE_SOURCE_DIR}/order/*.cpp")
+file(GLOB PITCH_MESSAGE_SOURCES "${CMAKE_SOURCE_DIR}/pitchMessage/*.cpp")
 
-file(GLOB_RECURSE TEST_SOURCES
-    "${CMAKE_SOURCE_DIR}/matchingEngine/*.cpp"
-    "${CMAKE_SOURCE_DIR}/order/*.cpp"
-    "${CMAKE_SOURCE_DIR}/pitchMessage/*.cpp"
-    "${CMAKE_SOURCE_DIR}/traderPool/*.cpp"
-    "${CMAKE_SOURCE_DIR}/dataService/*.cpp"
-    "${CMAKE_SOURCE_DIR}/test/*.cpp"
+add_executable(matchingEngineTest 
+    test/matchingEngineTest.cpp
+    ${MATCHING_ENGINE_SOURCES}
+    ${ORDER_SOURCES}
+    ${PITCH_MESSAGE_SOURCES}
 )
-
-add_executable(UnitTests ${TEST_SOURCES})
-
-target_include_directories(UnitTests PRIVATE
+target_include_directories(matchingEngineTest PRIVATE
     "${CMAKE_SOURCE_DIR}/matchingEngine"
     "${CMAKE_SOURCE_DIR}/order"
     "${CMAKE_SOURCE_DIR}/pitchMessage"
-    "${CMAKE_SOURCE_DIR}/traderPool"
-    "${CMAKE_SOURCE_DIR}/dataService"
-    "${CMAKE_SOURCE_DIR}/sim"
     "${CMAKE_SOURCE_DIR}/test"
-    "C:/local/boost_1_88_0"
+    "${BOOST_INCLUDEDIR}"
 )
+target_link_libraries(matchingEngineTest ${Boost_LIBRARIES})
+add_test(NAME matchingEngineTest COMMAND matchingEngineTest)
 
-add_test(NAME AllUnitTests COMMAND UnitTests)
+add_executable(pitchMessageTest 
+    test/pitchMessageTest.cpp
+    ${PITCH_MESSAGE_SOURCES}
+)
+target_include_directories(pitchMessageTest PRIVATE
+    "${CMAKE_SOURCE_DIR}/pitchMessage"
+    "${CMAKE_SOURCE_DIR}/test"
+    "${BOOST_INCLUDEDIR}"
+)
+target_link_libraries(pitchMessageTest ${Boost_LIBRARIES})
+add_test(NAME pitchMessageTest COMMAND pitchMessageTest)
