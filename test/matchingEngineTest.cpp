@@ -18,7 +18,6 @@
 
 BOOST_AUTO_TEST_SUITE(matchingEngineTests)
 
-// struct TestCase {};
 BOOST_AUTO_TEST_CASE(spinUpEngine)
 {
     auto engine = MatchingEngine();

@@ -13,7 +13,7 @@
 
 PitchMessage PitchMsgFactory::createPitchMsg(MSG_TYPE msgType)
 {
-    switch (msgType){
+    switch (msgType) {
         case MSG_TYPE::ADD:
             return PitchMessage("A", addOrderFields);
             break;

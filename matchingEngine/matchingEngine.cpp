@@ -48,13 +48,16 @@ void MatchingEngine::addOrder(PitchMessage const & msg)
     std::string symbol = msg.symbol();
     char side = msg.side();
     double price = msg.price();
-    Order* newOrder = new Order(msg.symbol(), msg.shares(), price, side, msg.id());
+    Order* newOrder = new Order(symbol, msg.shares(), price, side, msg.id());
 
     std::optional<Order*> revisedOrder = attemptTrade(newOrder, symbol); // attempt trade, if no trade occurs or leftover shares, insert
     if (revisedOrder == std::nullopt) {
         return;
     }
 
+    if (!buyBook.contains(symbol)) [[unlikely]] {
+        throw std::runtime_error("Unknown symbol in message.");
+    }
     if (side == 'B') {
         buyBook[symbol][price].push_back(revisedOrder.value());
     } else if (side == 'S') {
@@ -97,7 +100,7 @@ std::optional<Order*> MatchingEngine::attemptTrade(Order* incomingOrder, std::st
     PriceMap & oppositePriceMap = oppositeBook[symbol];
     
     if (oppositeBookIt == oppositeBook.end()) {
-        return std::nullopt;
+        return incomingOrder;
     }
 
     std::optional<PriceMapIterator> priceMapIt = matchOrder(oppositeBookIt, side, price);

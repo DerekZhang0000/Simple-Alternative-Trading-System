@@ -39,7 +39,7 @@ class PitchMessage
      * @param value 
      * @return PitchMessage 
      */
-    PitchMessage setParameter(std::string param, std::string value);
+    PitchMessage& setParameter(std::string param, std::string value);
 
     /**
      * @brief Gets a specified parameter

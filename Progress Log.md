@@ -20,3 +20,5 @@
 ### 6/2
 - Refactored unit testing compilation
 - Added unit tests for Matching Engine
+### 6/4
+- Minor bug fixes

@@ -11,6 +11,7 @@
 
 #include <iostream>
 
+#include "pitchMsgFactory.h"
 #include "matchingEngine.h"
 
 int main()

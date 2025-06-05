@@ -18,7 +18,7 @@ PitchMessage::PitchMessage(std::string newMsgType, std::vector<std::string> fiel
     setParameter("MessageType", newMsgType);
 }
 
-PitchMessage PitchMessage::setParameter(std::string param, std::string value)
+PitchMessage& PitchMessage::setParameter(std::string param, std::string value)
 {
     params[param] = value;
     return *this;
