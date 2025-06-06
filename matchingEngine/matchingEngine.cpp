@@ -13,6 +13,7 @@
 #include "order.h"
 
 #include <stdexcept>
+#include <chrono>
 
 MatchingEngine::~MatchingEngine()
 {
@@ -171,6 +172,37 @@ void MatchingEngine::cancelOrder(PitchMessage const & msg)
 void MatchingEngine::forwardTrade(PitchMessage const & msg)
 {
     // Forward to data collection service when implemented
+}
+
+std::string MatchingEngine::getTimestampStr() {
+    auto now = std::chrono::system_clock::now();
+    std::time_t time = std::chrono::system_clock::to_time_t(now);
+    std::tm local = *std::localtime(&time);
+
+    uint64_t msSinceMidnight =
+        local.tm_hour * 3600000 +
+        local.tm_min  * 60000 +
+        local.tm_sec  * 1000 +
+        duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count() % 1000;
+
+    std::ostringstream oss;
+    oss << std::setw(8) << std::setfill('0') << msSinceMidnight;
+    return oss.str();
+}
+
+std::string MatchingEngine::getExecutionID()
+{
+    
+}
+
+void MatchingEngine::sendExecuteMessage(std::string const & orderID, int shareDelta, DataServiceQueue* dataServiceQueue)
+{
+    auto msg = pitchMsgFactory.createPitchMsg(PitchMsgFactory::MSG_TYPE::EXECUTE);
+    msg.setParameter("Timestamp", getTimestampStr())
+        .setParameter("OrderID", orderID)
+        .setParameter("Shares", std::to_string(shareDelta))
+        .setParameter("ExecutionID", getExecutionID());
+    dataServiceQueue->push(&msg);
 }
 
 void MatchingEngine::ingestMessage(PitchMessage const & msg)

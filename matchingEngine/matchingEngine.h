@@ -13,10 +13,11 @@
 #define MATCHINGENGINE_H
 
 #include "order.h"
-#include "pitchMessage.h"
+#include "pitchMsgFactory.h"
 
 #include <string>
 #include <boost/container/flat_map.hpp>
+#include <boost/lockfree/queue.hpp>
 #include <unordered_map>
 #include <optional>
 #include <deque>
@@ -27,12 +28,14 @@ typedef boost::container::flat_map<double, std::deque<Order*>> PriceMap;
 typedef boost::container::vec_iterator<std::pair<double, std::deque<Order*>>*, false> PriceMapIterator;
 typedef std::unordered_map<std::string, PriceMap> Book;
 typedef Book::iterator BookIterator;
+typedef boost::lockfree::queue<PitchMessage*, boost::lockfree::capacity<128>> DataServiceQueue;
 
 class MatchingEngine {
     private:
     Book buyBook = {};
     Book sellBook = {};
     std::unordered_map<std::string, Order*> idMap = {};
+    PitchMsgFactory pitchMsgFactory = PitchMsgFactory();
 
     public:
     MatchingEngine() = default;
@@ -75,6 +78,29 @@ class MatchingEngine {
      * @param msg 
      */
     void cancelOrder(PitchMessage const & msg);
+
+    /**
+     * @brief Gets an 8-character string of milliseconds since midnight
+     * 
+     * @return std::string 
+     */
+    std::string getTimestampStr();
+
+    /**
+     * @brief Gets the next ExecutionID
+     * 
+     * @return std::string 
+     */
+    std::string getExecutionID();
+
+    /**
+     * @brief Sends an Order Executed message to the data service queue
+     * 
+     * @param orderID 
+     * @param shareDelta 
+     * @param dataServiceQueue 
+     */
+    void sendExecuteMessage(std::string const & orderID, int shareDelta, DataServiceQueue* dataServiceQueue);
 
     /**
      * @brief Forwards a trade message to data collection service

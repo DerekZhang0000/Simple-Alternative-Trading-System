@@ -22,3 +22,5 @@
 - Added unit tests for Matching Engine
 ### 6/4
 - Minor bug fixes
+### 6/5
+- Started Order Executed functionality
