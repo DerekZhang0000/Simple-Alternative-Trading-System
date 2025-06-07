@@ -15,6 +15,11 @@
 #include <stdexcept>
 #include <chrono>
 
+MatchingEngine::MatchingEngine(DataService* newDataServicePtr)
+{
+    this->dataServicePtr = newDataServicePtr;
+}
+
 MatchingEngine::~MatchingEngine()
 {
     for (auto & pair : idMap) {
@@ -51,7 +56,7 @@ void MatchingEngine::addOrder(PitchMessage const & msg)
     double price = msg.price();
     Order* newOrder = new Order(symbol, msg.shares(), price, side, msg.id());
 
-    std::optional<Order*> revisedOrder = attemptTrade(newOrder, symbol); // attempt trade, if no trade occurs or leftover shares, insert
+    std::optional<Order*> revisedOrder = attemptTrade(newOrder, symbol); // attempt trade, if no trade occurs or there are leftover shares, insert order
     if (revisedOrder == std::nullopt) {
         return;
     }
@@ -112,7 +117,7 @@ std::optional<Order*> MatchingEngine::attemptTrade(Order* incomingOrder, std::st
             int shareDelta = std::min(queuedOrder->shares(), incomingOrder->shares());
             queuedOrder->tradeShares(shareDelta);
             incomingOrder->tradeShares(shareDelta);
-            // Create execute order and send here
+            sendExecuteMessage(queuedOrder->id(), shareDelta);
 
             if (queuedOrder->shares() == 0) {
                 delete queuedOrder;
@@ -192,17 +197,22 @@ std::string MatchingEngine::getTimestampStr() {
 
 std::string MatchingEngine::getExecutionID()
 {
-    
+    dataServicePtr->getNextExecutionID();
 }
 
-void MatchingEngine::sendExecuteMessage(std::string const & orderID, int shareDelta, DataServiceQueue* dataServiceQueue)
+void MatchingEngine::sendExecuteMessage(std::string const & orderID, int shareDelta)
 {
     auto msg = pitchMsgFactory.createPitchMsg(PitchMsgFactory::MSG_TYPE::EXECUTE);
     msg.setParameter("Timestamp", getTimestampStr())
         .setParameter("OrderID", orderID)
         .setParameter("Shares", std::to_string(shareDelta))
         .setParameter("ExecutionID", getExecutionID());
-    dataServiceQueue->push(&msg);
+
+    if (dataServicePtr == nullptr) [[unlikely]] {
+        return;
+    }
+
+    dataServicePtr->getQueue()->push(&msg);
 }
 
 void MatchingEngine::ingestMessage(PitchMessage const & msg)

@@ -7,7 +7,7 @@ Add data collection and analysis
 Create visualization tools
 Use FIX protocol for order inputs instead of PITCH
 Polish everything and refactor code
-Update documentation
+Update documentation / create dependency graph
 
 Bonus
 Host online?

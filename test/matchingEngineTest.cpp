@@ -20,7 +20,7 @@ BOOST_AUTO_TEST_SUITE(matchingEngineTests)
 
 BOOST_AUTO_TEST_CASE(spinUpEngine)
 {
-    auto engine = MatchingEngine();
+    auto engine = MatchingEngine(nullptr);
     auto factory = PitchMsgFactory();
     auto msg = factory.createPitchMsg(PitchMsgFactory::MSG_TYPE::ADD);
     msg.setParameter("Timestamp", "12345678")
@@ -38,7 +38,7 @@ BOOST_AUTO_TEST_CASE(spinUpEngine)
 
 BOOST_AUTO_TEST_CASE(ingestAddOrder)
 {
-    auto engine = MatchingEngine();
+    auto engine = MatchingEngine(nullptr);
     BOOST_REQUIRE(engine.getBook('B').empty());
     engine.populateSymbols({"   SPY"});
     BOOST_REQUIRE(!engine.getBook('B').empty());

@@ -24,3 +24,6 @@
 - Minor bug fixes
 ### 6/5
 - Started Order Executed functionality
+### 6/6
+- Completed Order Executed functionality
+- Created Data Service and Engine Router classes

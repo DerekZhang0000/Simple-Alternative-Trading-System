@@ -21,6 +21,7 @@ file(GLOB_RECURSE MAIN_SOURCES
     "${CMAKE_SOURCE_DIR}/pitchMessage/*.cpp"
     "${CMAKE_SOURCE_DIR}/traderPool/*.cpp"
     "${CMAKE_SOURCE_DIR}/dataService/*.cpp"
+    "${CMAKE_SOURCE_DIR}/engineRouter/*.cpp"
     "${CMAKE_SOURCE_DIR}/sim/*.cpp"
 )
 
@@ -31,6 +32,7 @@ target_include_directories(WorseAlternativeTradingSystem PRIVATE
     "${CMAKE_SOURCE_DIR}/pitchMessage"
     "${CMAKE_SOURCE_DIR}/traderPool"
     "${CMAKE_SOURCE_DIR}/dataService"
+    "${CMAKE_SOURCE_DIR}/engineRouter"
     "${CMAKE_SOURCE_DIR}/sim"
     "${BOOST_INCLUDEDIR}"
 )
