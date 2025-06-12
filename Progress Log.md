@@ -27,3 +27,5 @@
 ### 6/6
 - Completed Order Executed functionality
 - Created Data Service and Engine Router classes
+### 6/10
+- Completed Engine Router functionality

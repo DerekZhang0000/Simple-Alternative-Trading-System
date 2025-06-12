@@ -140,12 +140,19 @@ class MatchingEngine {
     void populateSymbols(std::vector<std::string> const & symbolList);
 
     /**
-     * @brief Get the Book object for a specified side
+     * @brief Gets the Book object for a specified side
      * 
      * @param side 
      * @return Book& 
      */
     Book& getBook(char side);
+
+    /**
+     * @brief Sets the Data Service pointer
+     * 
+     * @param dataServicePtr 
+     */
+    void setDataService(DataService* newDataServicePtr);
 };
 
 #endif

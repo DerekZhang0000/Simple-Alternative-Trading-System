@@ -43,17 +43,20 @@ enable_testing()
 file(GLOB MATCHING_ENGINE_SOURCES "${CMAKE_SOURCE_DIR}/matchingEngine/*.cpp")
 file(GLOB ORDER_SOURCES "${CMAKE_SOURCE_DIR}/order/*.cpp")
 file(GLOB PITCH_MESSAGE_SOURCES "${CMAKE_SOURCE_DIR}/pitchMessage/*.cpp")
+file(GLOB DATA_SERVICE_SOURCES "${CMAKE_SOURCE_DIR}/dataService/*.cpp")
 
 add_executable(matchingEngineTest 
     test/matchingEngineTest.cpp
     ${MATCHING_ENGINE_SOURCES}
     ${ORDER_SOURCES}
     ${PITCH_MESSAGE_SOURCES}
+    ${DATA_SERVICE_SOURCES}
 )
 target_include_directories(matchingEngineTest PRIVATE
     "${CMAKE_SOURCE_DIR}/matchingEngine"
     "${CMAKE_SOURCE_DIR}/order"
     "${CMAKE_SOURCE_DIR}/pitchMessage"
+    "${CMAKE_SOURCE_DIR}/dataService"
     "${CMAKE_SOURCE_DIR}/test"
     "${BOOST_INCLUDEDIR}"
 )

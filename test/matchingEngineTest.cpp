@@ -15,6 +15,7 @@
 
 #include "matchingEngine.h"
 #include "pitchMsgFactory.h"
+#include "dataService.h"
 
 BOOST_AUTO_TEST_SUITE(matchingEngineTests)
 

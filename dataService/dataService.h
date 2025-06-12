@@ -14,6 +14,7 @@
 
 #include "pitchMessage.h"
 
+#include <mutex>
 #include <boost/lockfree/queue.hpp>
 
 typedef boost::lockfree::queue<PitchMessage*, boost::lockfree::capacity<128>> DataServiceQueue;

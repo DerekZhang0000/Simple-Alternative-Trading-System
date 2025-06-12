@@ -197,7 +197,7 @@ std::string MatchingEngine::getTimestampStr() {
 
 std::string MatchingEngine::getExecutionID()
 {
-    dataServicePtr->getNextExecutionID();
+    return dataServicePtr->getNextExecutionID();
 }
 
 void MatchingEngine::sendExecuteMessage(std::string const & orderID, int shareDelta)
@@ -251,4 +251,9 @@ Book& MatchingEngine::getBook(char side)
     } else [[unlikely]] {
         throw std::runtime_error("Unexpected side for getting book.");
     }
+}
+
+void MatchingEngine::setDataService(DataService* newDataServicePtr)
+{
+    this->dataServicePtr = newDataServicePtr;
 }
