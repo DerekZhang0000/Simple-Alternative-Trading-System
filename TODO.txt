@@ -4,6 +4,7 @@ IN-PROCESS Create matching engine and order book architecture
 IN-PROCESS Set up testing
 Create trading simulator
 Add data collection and analysis
+Implement multithreading
 Create visualization tools
 Use FIX protocol for order inputs instead of PITCH
 Polish everything and refactor code

@@ -27,5 +27,8 @@
 ### 6/6
 - Completed Order Executed functionality
 - Created Data Service and Engine Router classes
-### 6/10
+### 6/11
 - Completed Engine Router functionality
+### 6/12
+- Minor bug fixes
+- Expanded Matching Engine test coverage

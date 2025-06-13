@@ -140,7 +140,7 @@ std::optional<Order*> MatchingEngine::attemptTrade(Order* incomingOrder, std::st
     return incomingOrder;
 }
 
-OrderQueue MatchingEngine::locateOrderQueue(std::string const & orderId)
+OrderQueue& MatchingEngine::locateOrderQueue(std::string const & orderId)
 {
     auto idMapIt = idMap.find(orderId);
     if (idMapIt == idMap.end()) [[unlikely]] {
@@ -179,7 +179,8 @@ void MatchingEngine::forwardTrade(PitchMessage const & msg)
     // Forward to data collection service when implemented
 }
 
-std::string MatchingEngine::getTimestampStr() {
+std::string MatchingEngine::getTimestampStr()
+{
     auto now = std::chrono::system_clock::now();
     std::time_t time = std::chrono::system_clock::to_time_t(now);
     std::tm local = *std::localtime(&time);
@@ -246,7 +247,7 @@ Book& MatchingEngine::getBook(char side)
 {
     if (side == 'B') {
         return buyBook;
-    } else if (side == 'C') {
+    } else if (side == 'S') {
         return sellBook;
     } else [[unlikely]] {
         throw std::runtime_error("Unexpected side for getting book.");

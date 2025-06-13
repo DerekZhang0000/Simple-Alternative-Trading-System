@@ -37,24 +37,8 @@ class MatchingEngine {
     PitchMsgFactory pitchMsgFactory = PitchMsgFactory();
     DataService* dataServicePtr;
 
-    public:
     /**
-     * @brief Construct a new Matching Engine object and assign a data service pointer
-     * 
-     * @param dataServicePtr 
-     */
-    MatchingEngine(DataService* dataServicePtr);
-    ~MatchingEngine();
-
-    /**
-     * @brief Ingests a message and performs a corresponding action
-     * 
-     * @param msg 
-     */
-    void ingestMessage(PitchMessage const & msg);
-
-    /**
-     * @brief Locates an order book given a ticker symbol and buy/sell side
+     * @brief Locates a Book Iterator given a ticker symbol and buy/sell side
      * 
      * @param symbol 
      * @param side 
@@ -63,56 +47,12 @@ class MatchingEngine {
     BookIterator locateBook(std::string const & symbol, char side);
 
     /**
-     * @brief Adds an order to the order book, then executes trades if possible
-     * 
-     * @param msg 
-     */
-    void addOrder(PitchMessage const & msg);
-
-    /**
-     * @brief Returns an iterator pointing to an order given its ID
+     * @brief Returns an Order Queue reference based on an Order ID 
      * 
      * @param orderId 
-     * @return OrderQueueIterator 
+     * @return OrderQueue& 
      */
-    OrderQueue locateOrderQueue(std::string const & orderId);
-
-    /**
-     * @brief Cancels a certain number of shares in an order
-     * 
-     * @param msg 
-     */
-    void cancelOrder(PitchMessage const & msg);
-
-    /**
-     * @brief Gets an 8-character string of milliseconds since midnight
-     * 
-     * @return std::string 
-     */
-    std::string getTimestampStr();
-
-    /**
-     * @brief Gets the next ExecutionID
-     * 
-     * @return std::string 
-     */
-    std::string getExecutionID();
-
-    /**
-     * @brief Sends an Order Executed message to the data service queue
-     * 
-     * @param orderID 
-     * @param shareDelta 
-     * @param dataServiceQueue 
-     */
-    void sendExecuteMessage(std::string const & orderID, int shareDelta);
-
-    /**
-     * @brief Forwards a trade message to data collection service
-     * 
-     * @param msg 
-     */
-    void forwardTrade(PitchMessage const & msg);
+    OrderQueue& locateOrderQueue(std::string const & orderId);
 
     /**
      * @brief Returns an iterator pointing to the best order match for a given symbol, side, and price, if one exists
@@ -131,6 +71,71 @@ class MatchingEngine {
      * @return PitchMessage 
      */
     inline std::optional<Order*> attemptTrade(Order* incomingOrder, std::string const & symbol);
+
+    /**
+     * @brief Adds an order to the order book, then executes trades if possible
+     * 
+     * @param msg 
+     */
+    void addOrder(PitchMessage const & msg);
+
+    /**
+     * @brief Cancels a certain number of shares in an order
+     * 
+     * @param msg 
+     */
+    void cancelOrder(PitchMessage const & msg);
+
+    /**
+     * @brief Sends an Order Executed message to the data service queue
+     * 
+     * @param orderID 
+     * @param shareDelta 
+     * @param dataServiceQueue 
+     */
+    void sendExecuteMessage(std::string const & orderID, int shareDelta);
+
+    /**
+     * @brief Forwards a trade message to data collection service
+     * 
+     * @param msg 
+     */
+    void forwardTrade(PitchMessage const & msg);
+
+    public:
+    /**
+     * @brief Construct a new Matching Engine object and assign a data service pointer
+     * 
+     * @param dataServicePtr 
+     */
+    MatchingEngine(DataService* dataServicePtr);
+
+    /**
+     * @brief Destroy the Matching Engine object
+     * 
+     */
+    ~MatchingEngine();
+
+    /**
+     * @brief Ingests a message and performs a corresponding action
+     * 
+     * @param msg 
+     */
+    void ingestMessage(PitchMessage const & msg);
+
+    /**
+     * @brief Gets an 8-character string of milliseconds since midnight
+     * 
+     * @return std::string 
+     */
+    std::string getTimestampStr();
+
+    /**
+     * @brief Gets the next ExecutionID
+     * 
+     * @return std::string 
+     */
+    std::string getExecutionID();
 
     /**
      * @brief Initializes empty order queues on the buy and sell books for provided symbols, ran once on spin up
