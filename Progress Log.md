@@ -32,3 +32,8 @@
 ### 6/12
 - Minor bug fixes
 - Expanded Matching Engine test coverage
+### 6/14
+- Completed core Matching Engine functionality
+- Minor bug fixes
+- Resolved all memory leaks
+- Expanded Matching Engine test coverage

@@ -158,6 +158,13 @@ class MatchingEngine {
      * @param dataServicePtr 
      */
     void setDataService(DataService* newDataServicePtr);
+
+    /**
+     * @brief Returns the ID Map
+     * 
+     * @return std::unordered_map<std::string, Order*>& 
+     */
+    std::unordered_map<std::string, Order*>& getIDMap();
 };
 
 #endif

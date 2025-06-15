@@ -1,11 +1,9 @@
 Core Functionality
 DONE Create message class
-IN-PROCESS Create matching engine and order book architecture
+DONE Create matching engine and order book architecture
 IN-PROCESS Set up testing
-Create trading simulator
+IN-PROCESS Create trading simulator / implement multithreading
 Add data collection and analysis
-Implement multithreading
-Create visualization tools
 Use FIX protocol for order inputs instead of PITCH
 Polish everything and refactor code
 Update documentation / create dependency graph

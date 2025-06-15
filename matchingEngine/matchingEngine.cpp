@@ -22,12 +22,18 @@ MatchingEngine::MatchingEngine(DataService* newDataServicePtr)
 
 MatchingEngine::~MatchingEngine()
 {
-    for (auto & pair : idMap) {
-        if (pair.second != nullptr) {
-            pair.second->~Order();
+    for (auto & book : {std::ref(buyBook), std::ref(sellBook)}) {
+        for (auto & [symbol, priceMap] : book.get()) {
+            for (auto & [price, orderQueue] : priceMap) {
+                for (Order* order : orderQueue) {
+                    delete order;
+                }
+            }
         }
     }
+
     idMap.clear();
+    delete dataServicePtr;
 }
 
 BookIterator MatchingEngine::locateBook(std::string const & symbol, char side)
@@ -51,45 +57,49 @@ void MatchingEngine::populateSymbols(std::vector<std::string> const & symbolList
 
 void MatchingEngine::addOrder(PitchMessage const & msg)
 {
+    std::string id = msg.id();
     std::string symbol = msg.symbol();
     char side = msg.side();
     double price = msg.price();
-    Order* newOrder = new Order(symbol, msg.shares(), price, side, msg.id());
+    Order* newOrder = new Order(symbol, msg.shares(), price, side, id);
 
-    std::optional<Order*> revisedOrder = attemptTrade(newOrder, symbol); // attempt trade, if no trade occurs or there are leftover shares, insert order
-    if (revisedOrder == std::nullopt) {
+    if (!buyBook.contains(symbol)) [[unlikely]] {
+        delete newOrder;
+        throw std::runtime_error("Unknown symbol in message.");
+    }
+
+    std::optional<Order*> revisedOrderOpt = attemptTrade(newOrder, symbol); // attempt trade, if no trade occurs or there are leftover shares, insert order
+    if (revisedOrderOpt == std::nullopt) {
         return;
     }
 
-    if (!buyBook.contains(symbol)) [[unlikely]] {
-        throw std::runtime_error("Unknown symbol in message.");
-    }
+    idMap.emplace(std::make_pair(id, revisedOrderOpt.value()));
     if (side == 'B') {
-        buyBook[symbol][price].push_back(revisedOrder.value());
+        buyBook[symbol][price].push_back(revisedOrderOpt.value());
     } else if (side == 'S') {
-        sellBook[symbol][price].push_back(revisedOrder.value());
+        sellBook[symbol][price].push_back(revisedOrderOpt.value());
     } else [[unlikely]] {
+        delete revisedOrderOpt.value();
         throw std::runtime_error("Unexpected side for Add Order ingestion.");
     }
 }
 
-std::optional<PriceMapIterator> MatchingEngine::matchOrder(BookIterator const & oppositeBookIt, char const side, double const limitPrice)
+std::optional<PriceMapIterator> MatchingEngine::matchOrder(BookIterator const & oppositeBookIt, char const oppositeSide, double const limitPrice)
 {
-    if (side == 'B') {
-        auto queueIt = oppositeBookIt->second.lower_bound(0.0);
-        while (queueIt != oppositeBookIt->second.end() && queueIt->first <= limitPrice) {
-            if (!queueIt->second.empty()) {
-                return queueIt;
-            }
-            ++queueIt;
+    auto & priceMap = oppositeBookIt->second;
+    if (priceMap.empty()) { // if there are no opposite outstanding orders at any price
+        return std::nullopt;
+    }
+
+    if (oppositeSide == 'B') {  // match highest buy offer if incoming order is selling
+        auto priceMapIt = std::prev(priceMap.end());
+        if (priceMapIt->first >= limitPrice && !priceMapIt->second.empty()) {
+            return priceMapIt;
         }
-    } else if (side == 'S') {
-        auto queueIt = oppositeBookIt->second.upper_bound(limitPrice);
-        while (queueIt != oppositeBookIt->second.begin()) {
-            --queueIt;
-            if (queueIt->first >= limitPrice && !queueIt->second.empty()) {
-                return queueIt;
-            }
+    } else if (oppositeSide == 'S') {   // match lowest sell offer if incoming order is buying
+        auto priceMapIt = priceMap.begin();
+        if (priceMapIt->first <= limitPrice && !priceMapIt->second.empty()) {
+            return priceMapIt;
         }
     }
 
@@ -109,9 +119,9 @@ std::optional<Order*> MatchingEngine::attemptTrade(Order* incomingOrder, std::st
         return incomingOrder;
     }
 
-    std::optional<PriceMapIterator> priceMapIt = matchOrder(oppositeBookIt, side, price);
-    while (priceMapIt != std::nullopt) {
-        std::deque<Order*> & orderQueue = priceMapIt.value()->second;
+    std::optional<PriceMapIterator> priceMapItOpt = matchOrder(oppositeBookIt, oppositeSide, price);
+    while (priceMapItOpt != std::nullopt) {
+        std::deque<Order*> & orderQueue = priceMapItOpt.value()->second;
         while (orderQueue.size() > 0) {
             Order*& queuedOrder = orderQueue.at(0);
             int shareDelta = std::min(queuedOrder->shares(), incomingOrder->shares());
@@ -120,21 +130,23 @@ std::optional<Order*> MatchingEngine::attemptTrade(Order* incomingOrder, std::st
             sendExecuteMessage(queuedOrder->id(), shareDelta);
 
             if (queuedOrder->shares() == 0) {
+                idMap.erase(queuedOrder->id());
                 delete queuedOrder;
                 orderQueue.erase(orderQueue.begin());
-            } else [[unlikely]] {
-                throw std::runtime_error("Negative share count result in trade attempt.");
             }
 
             if (incomingOrder->shares() == 0) {
+                idMap.erase(incomingOrder->id());
+                delete incomingOrder;
                 return std::nullopt;
             } else if (incomingOrder->shares() < 0) [[unlikely]] {
+                delete incomingOrder;
                 throw std::runtime_error("Negative share count result in trade attempt.");
             }
         }
 
-        oppositePriceMap.erase(priceMapIt.value());
-        priceMapIt = matchOrder(oppositeBookIt, side, price);
+        oppositePriceMap.erase(priceMapItOpt.value());
+        priceMapItOpt = matchOrder(oppositeBookIt, oppositeSide, price);
     }
 
     return incomingOrder;
@@ -158,15 +170,23 @@ OrderQueue& MatchingEngine::locateOrderQueue(std::string const & orderId)
 void MatchingEngine::cancelOrder(PitchMessage const & msg)
 {
     std::string const & orderId = msg.id();
-    OrderQueue queue = locateOrderQueue(orderId);
+    OrderQueue& queue = locateOrderQueue(orderId);
     for (auto queueIt = queue.begin(); queueIt != queue.end(); ++queueIt) {
         if ((*queueIt)->id() == orderId) {
             int cancelShares = msg.shares();
             (*queueIt)->tradeShares(cancelShares);
 
-            if ((*queueIt)->shares() <= 0) {
+            if ((*queueIt)->shares() == 0) {
+                idMap.erase((*queueIt)->id());
+                delete *queueIt;
                 queue.erase(queueIt);
+            } else if ((*queueIt)->shares() < 0) [[unlikely]] {
+                idMap.erase((*queueIt)->id());
+                delete *queueIt;
+                queue.erase(queueIt);
+                throw std::runtime_error("Negative share count after cancelling shares.");
             }
+
             return;
         }
     }
@@ -198,20 +218,24 @@ std::string MatchingEngine::getTimestampStr()
 
 std::string MatchingEngine::getExecutionID()
 {
-    return dataServicePtr->getNextExecutionID();
+    if (dataServicePtr != nullptr) {
+        return dataServicePtr->getNextExecutionID();
+    } else {
+        return "";
+    }
 }
 
 void MatchingEngine::sendExecuteMessage(std::string const & orderID, int shareDelta)
 {
+    if (dataServicePtr == nullptr) [[unlikely]] {
+        return;
+    }
+
     auto msg = pitchMsgFactory.createPitchMsg(PitchMsgFactory::MSG_TYPE::EXECUTE);
     msg.setParameter("Timestamp", getTimestampStr())
         .setParameter("OrderID", orderID)
         .setParameter("Shares", std::to_string(shareDelta))
         .setParameter("ExecutionID", getExecutionID());
-
-    if (dataServicePtr == nullptr) [[unlikely]] {
-        return;
-    }
 
     dataServicePtr->getQueue()->push(&msg);
 }
@@ -257,4 +281,9 @@ Book& MatchingEngine::getBook(char side)
 void MatchingEngine::setDataService(DataService* newDataServicePtr)
 {
     this->dataServicePtr = newDataServicePtr;
+}
+
+std::unordered_map<std::string, Order*>& MatchingEngine::getIDMap()
+{
+    return this->idMap;
 }
