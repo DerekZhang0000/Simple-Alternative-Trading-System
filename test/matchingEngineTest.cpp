@@ -67,6 +67,7 @@ BOOST_AUTO_TEST_CASE(ingestAddOrder)
     BOOST_REQUIRE(engine.getBook('B')["   SPY"].empty());
     engine.ingestMessage(msg);
     BOOST_REQUIRE(engine.getBook('B')["   SPY"][100].front()->id() == "1234567890AB");
+    BOOST_REQUIRE(engine.getLastPrice("   SPY") == std::nullopt);
 }
 
 // Verifies the price-time priority of trades in the Matching Engine
@@ -91,6 +92,7 @@ BOOST_AUTO_TEST_CASE(ingestBuyAndSellOrders)
     engine.ingestMessage(sell10at90);
     BOOST_REQUIRE(buy100at100order->shares() == 90);
     BOOST_REQUIRE(engine.getBook('S')["   SPY"].empty());
+    BOOST_REQUIRE(engine.getLastPrice("   SPY") == 100);
 
     // Add sell order for 110 shares at $90 - 90 shares traded at $100, 20 sells at $90 remaining
     auto sell110at90 = createPitchAddMessage("S", "000110", "0000900000", "000000000002");
@@ -100,12 +102,14 @@ BOOST_AUTO_TEST_CASE(ingestBuyAndSellOrders)
     BOOST_REQUIRE(sell110at90order->id() == "000000000002");
     BOOST_REQUIRE(sell110at90order->price() == 90);
     BOOST_REQUIRE(sell110at90order->shares() == 20);
+    BOOST_REQUIRE(engine.getLastPrice("   SPY") == 100);
 
     // Add buy order for 20 shares at $110 - 20 shares trade at $90, 0 shares outstanding
     auto buy20at110 = createPitchAddMessage("B", "000020", "0001000000", "000000000003");
     engine.ingestMessage(buy20at110);
     BOOST_REQUIRE(engine.getBook('B')["   SPY"][100].empty());
     BOOST_REQUIRE(engine.getBook('S')["   SPY"][90].empty());
+    BOOST_REQUIRE(engine.getLastPrice("   SPY") == 90);
 }
 
 // Verifies correct cancel Order functionality
@@ -154,6 +158,7 @@ BOOST_AUTO_TEST_CASE(AIGenTest_1)
     // Step 2: Add a sell order to partially fill both buy orders
     auto sell120 = createPitchAddMessage("S", "000120", "0000900000", "000000000012");
     engine.ingestMessage(sell120);
+    BOOST_REQUIRE(engine.getLastPrice("   SPY") == 100);
 
     // Buy 100 should be filled, Buy 50 should have 30 remaining
     BOOST_REQUIRE(engine.getBook('B')["   SPY"][100].size() == 1);
@@ -194,6 +199,7 @@ BOOST_AUTO_TEST_CASE(AIGenTest_2)
 
     // Step 2: Sell order sweeps top 2 levels ($101 and $100)
     engine.ingestMessage(createPitchAddMessage("S", "000090", "0000980000", "000000000104"));
+    BOOST_REQUIRE(engine.getLastPrice("   SPY") == 100);
 
     // $101 should be gone, $100 should have 10 shares remaining
     BOOST_REQUIRE(engine.getBook('B')["   SPY"][101].empty());

@@ -36,6 +36,7 @@ class MatchingEngine {
     std::unordered_map<std::string, Order*> idMap = {};
     PitchMsgFactory pitchMsgFactory = PitchMsgFactory();
     DataService* dataServicePtr;
+    std::unordered_map<std::string, double> lastPriceMap;
 
     /**
      * @brief Locates a Book Iterator given a ticker symbol and buy/sell side
@@ -165,6 +166,14 @@ class MatchingEngine {
      * @return std::unordered_map<std::string, Order*>& 
      */
     std::unordered_map<std::string, Order*>& getIDMap();
+
+    /**
+     * @brief Gets the last price of a ticker if it has been traded
+     * 
+     * @param symbol 
+     * @return std::optional<double> 
+     */
+    const std::optional<double> getLastPrice(std::string const & symbol) const;
 };
 
 #endif

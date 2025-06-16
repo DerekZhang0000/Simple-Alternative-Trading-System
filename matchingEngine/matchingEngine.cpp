@@ -33,7 +33,6 @@ MatchingEngine::~MatchingEngine()
     }
 
     idMap.clear();
-    delete dataServicePtr;
 }
 
 BookIterator MatchingEngine::locateBook(std::string const & symbol, char side)
@@ -127,6 +126,7 @@ std::optional<Order*> MatchingEngine::attemptTrade(Order* incomingOrder, std::st
             int shareDelta = std::min(queuedOrder->shares(), incomingOrder->shares());
             queuedOrder->tradeShares(shareDelta);
             incomingOrder->tradeShares(shareDelta);
+            lastPriceMap[symbol] = queuedOrder->price();
             sendExecuteMessage(queuedOrder->id(), shareDelta);
 
             if (queuedOrder->shares() == 0) {
@@ -286,4 +286,14 @@ void MatchingEngine::setDataService(DataService* newDataServicePtr)
 std::unordered_map<std::string, Order*>& MatchingEngine::getIDMap()
 {
     return this->idMap;
+}
+
+const std::optional<double> MatchingEngine::getLastPrice(std::string const & symbol) const
+{
+    auto lastPriceIt = lastPriceMap.find(symbol);
+    if (lastPriceIt == lastPriceMap.end()) [[unlikely]] {
+        return std::nullopt;
+    }
+
+    return lastPriceMap.at(symbol);
 }

@@ -67,6 +67,14 @@ class EngineRouter {
     void routeMessage(OrderType orderMsg);
 
     /**
+     * @brief Routes and gets the last price for a ticker from the appropriate Matching Engine
+     * 
+     * @param symbol 
+     * @return const std::optional<double> 
+     */
+    const std::optional<double> routeGetLastPrice(std::string const & symbol) const;
+
+    /**
      * @brief Destroys the Engine Router object
      * 
      */

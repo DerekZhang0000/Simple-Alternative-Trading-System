@@ -37,3 +37,6 @@
 - Minor bug fixes
 - Resolved all memory leaks
 - Expanded Matching Engine test coverage
+### 6/16
+- Started building out Trader Pool class
+- Added last price functionality to Matching Engine

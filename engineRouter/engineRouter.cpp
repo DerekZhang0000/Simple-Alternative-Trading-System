@@ -1,7 +1,7 @@
 /**
  * @file engineRouter.cpp
  * @author Derek Zhang
- * @brief 
+ * @brief The Engine Router class will be responsible for routing order messages to the appropriate Matching Engine
  * @version 0.1
  * @date 2025-06-07
  * 
@@ -69,6 +69,11 @@ template <typename OrderType>
 void EngineRouter::routeMessage(OrderType orderMsg)
 {
     engineMap[orderMsg.symbol()]->ingestMessage(orderMsg);
+}
+
+const std::optional<double> EngineRouter::routeGetLastPrice(std::string const & symbol) const
+{
+    return engineMap.at(symbol)->getLastPrice(symbol);
 }
 
 EngineRouter::~EngineRouter()
