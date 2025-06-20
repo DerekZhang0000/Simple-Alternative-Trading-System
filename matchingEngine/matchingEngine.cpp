@@ -176,15 +176,10 @@ void MatchingEngine::cancelOrder(PitchMessage const & msg)
             int cancelShares = msg.shares();
             (*queueIt)->tradeShares(cancelShares);
 
-            if ((*queueIt)->shares() == 0) {
+            if ((*queueIt)->shares() <= 0) {
                 idMap.erase((*queueIt)->id());
                 delete *queueIt;
                 queue.erase(queueIt);
-            } else if ((*queueIt)->shares() < 0) [[unlikely]] {
-                idMap.erase((*queueIt)->id());
-                delete *queueIt;
-                queue.erase(queueIt);
-                throw std::runtime_error("Negative share count after cancelling shares.");
             }
 
             return;

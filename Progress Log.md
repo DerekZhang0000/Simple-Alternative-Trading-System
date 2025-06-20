@@ -40,3 +40,5 @@
 ### 6/16
 - Started building out Trader Pool class
 - Added last price functionality to Matching Engine
+### 6/20
+- Continued building out Trader Pool class
