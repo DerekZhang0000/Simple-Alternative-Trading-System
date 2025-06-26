@@ -11,6 +11,8 @@
 
 #include "pitchMsgFactory.h"
 
+#include <chrono>
+
 PitchMessage PitchMsgFactory::createPitchMsg(MSG_TYPE msgType)
 {
     switch (msgType) {
@@ -27,4 +29,29 @@ PitchMessage PitchMsgFactory::createPitchMsg(MSG_TYPE msgType)
             return PitchMessage("P", tradeMsgFields);
             break;
     }
+}
+
+std::string PitchMsgFactory::getTimestampStr()
+{
+    auto now = std::chrono::system_clock::now();
+    std::time_t time = std::chrono::system_clock::to_time_t(now);
+    std::tm local = *std::localtime(&time);
+
+    long msSinceMidnight =
+        local.tm_hour * 3600000 +
+        local.tm_min  * 60000 +
+        local.tm_sec  * 1000 +
+        duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count() % 1000;
+
+    std::ostringstream oss;
+    oss << std::setw(8) << std::setfill('0') << msSinceMidnight;
+    return oss.str();
+}
+
+std::string PitchMsgFactory::getPriceStr(double price)
+{
+    long long scaledPrice = static_cast<long long>(std::round(price * 10000));
+    std::ostringstream oss;
+    oss << std::setw(10) << std::setfill('0') << scaledPrice;
+    return oss.str();
 }

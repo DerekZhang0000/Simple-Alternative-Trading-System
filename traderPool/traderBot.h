@@ -13,18 +13,19 @@
 #define TRADERBOT_H
 
 #include "order.h"
+#include "pitchMsgFactory.h"
 
 #include <string>
 #include <list>
 #include <unordered_map>
-
-int BUY = 0;
-int SELL = 1;
+#include <random>
+#include <functional>
 
 class TraderBot {
     protected:
     std::list<Order*> orders;
-    std::unordered_map<std::string, double> params;
+    std::unordered_map<std::string, std::string> params;
+    PitchMsgFactory pitchMsgFactory = PitchMsgFactory();
 
     public:
     TraderBot() = default;
@@ -46,27 +47,48 @@ class TraderBot {
     TraderBot& setParameter(std::string key, double value);
 
     /**
-     * @brief Returns a list of Add Order messages
+     * @brief Gets a parameter
+     * 
+     * @param param 
+     * @return std::string 
+     */
+    std::string getParameter(std::string param);
+
+    /**
+     * @brief Pushes an Order to the end of the list
+     * 
+     * @param order 
+     */
+    void pushOrder(Order* order);
+
+    /**
+     * @brief Returns a list of Add Order messages using the PITCH protocol
      * 
      * @param orderIDs 
      * @return std::string 
      */
-    virtual std::vector<std::string> createOrderMessages(std::vector<std::string> orderIDs) = 0;
+    virtual std::vector<PitchMessage*> createPitchOrders(std::vector<std::string> orderIDs) = 0;
 };
 
 class GaussianBot : public TraderBot {
+    private:
+    std::random_device rd{};
+    std::mt19937 gen{rd()};
+    std::uniform_real_distribution<double> uniform{0.0, 1.0};
+    std::function<double(void)> gauss_dist = nullptr;
+
     public:
-    std::vector<std::string> createOrderMessages(std::vector<std::string> orderIDs);
+    std::vector<PitchMessage*> createPitchOrders(std::vector<std::string> orderIDs);
 };
 
 class MarketMakerBot : public TraderBot {
     public:
-    std::vector<std::string> createOrderMessages(std::vector<std::string> orderIDs);
+    std::vector<PitchMessage*> createPitchOrders(std::vector<std::string> orderIDs);
 };
 
 class TradeMessenger : public TraderBot {
     public:
-    std::vector<std::string> createOrderMessages(std::vector<std::string> orderIDs);
+    std::vector<PitchMessage*> createPitchOrders(std::vector<std::string> orderIDs);
 };
 
 #endif

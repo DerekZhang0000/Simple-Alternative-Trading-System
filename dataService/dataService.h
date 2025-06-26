@@ -14,7 +14,6 @@
 
 #include "pitchMessage.h"
 
-#include <mutex>
 #include <boost/lockfree/queue.hpp>
 
 typedef boost::lockfree::queue<PitchMessage*, boost::lockfree::capacity<128>> DataServiceQueue;
@@ -23,7 +22,6 @@ class DataService {
     private:
     DataServiceQueue* serviceQueue = new DataServiceQueue();
     std::string executionID = "000000000000";   // Base 36 string that keeps track of unique execution IDs
-    std::mutex mutex = std::mutex();
 
     /**
      * @brief Increments a base 64 string of length 12 in place

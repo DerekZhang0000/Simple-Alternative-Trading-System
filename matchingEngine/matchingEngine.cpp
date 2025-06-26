@@ -13,7 +13,6 @@
 #include "order.h"
 
 #include <stdexcept>
-#include <chrono>
 
 MatchingEngine::MatchingEngine(DataService* newDataServicePtr)
 {
@@ -54,7 +53,7 @@ void MatchingEngine::populateSymbols(std::vector<std::string> const & symbolList
     }
 }
 
-void MatchingEngine::addOrder(PitchMessage const & msg)
+Order* MatchingEngine::addOrder(PitchMessage const & msg)
 {
     std::string id = msg.id();
     std::string symbol = msg.symbol();
@@ -69,14 +68,16 @@ void MatchingEngine::addOrder(PitchMessage const & msg)
 
     std::optional<Order*> revisedOrderOpt = attemptTrade(newOrder, symbol); // attempt trade, if no trade occurs or there are leftover shares, insert order
     if (revisedOrderOpt == std::nullopt) {
-        return;
+        return nullptr;
     }
 
     idMap.emplace(std::make_pair(id, revisedOrderOpt.value()));
     if (side == 'B') {
         buyBook[symbol][price].push_back(revisedOrderOpt.value());
+        return revisedOrderOpt.value();
     } else if (side == 'S') {
         sellBook[symbol][price].push_back(revisedOrderOpt.value());
+        return revisedOrderOpt.value();
     } else [[unlikely]] {
         delete revisedOrderOpt.value();
         throw std::runtime_error("Unexpected side for Add Order ingestion.");
@@ -194,23 +195,6 @@ void MatchingEngine::forwardTrade(PitchMessage const & msg)
     // Forward to data collection service when implemented
 }
 
-std::string MatchingEngine::getTimestampStr()
-{
-    auto now = std::chrono::system_clock::now();
-    std::time_t time = std::chrono::system_clock::to_time_t(now);
-    std::tm local = *std::localtime(&time);
-
-    uint64_t msSinceMidnight =
-        local.tm_hour * 3600000 +
-        local.tm_min  * 60000 +
-        local.tm_sec  * 1000 +
-        duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count() % 1000;
-
-    std::ostringstream oss;
-    oss << std::setw(8) << std::setfill('0') << msSinceMidnight;
-    return oss.str();
-}
-
 std::string MatchingEngine::getExecutionID()
 {
     if (dataServicePtr != nullptr) {
@@ -227,7 +211,7 @@ void MatchingEngine::sendExecuteMessage(std::string const & orderID, int shareDe
     }
 
     auto msg = pitchMsgFactory.createPitchMsg(PitchMsgFactory::MSG_TYPE::EXECUTE);
-    msg.setParameter("Timestamp", getTimestampStr())
+    msg.setParameter("Timestamp", pitchMsgFactory.getTimestampStr())
         .setParameter("OrderID", orderID)
         .setParameter("Shares", std::to_string(shareDelta))
         .setParameter("ExecutionID", getExecutionID());

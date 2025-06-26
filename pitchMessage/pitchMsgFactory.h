@@ -36,6 +36,21 @@ class PitchMsgFactory {
      * @return PitchMessage 
      */
     PitchMessage createPitchMsg(MSG_TYPE msgType);
+
+    /**
+     * @brief Gets an 8-character string of milliseconds since midnight
+     * 
+     * @return std::string 
+     */
+    std::string getTimestampStr();
+
+    /**
+     * @brief 10 ASCII digits, whole number price in ten-thousandths of a dollar, with leading zeroes if needed
+     * 
+     * @param price 
+     * @return std::string 
+     */
+    std::string getPriceStr(double price);
 };
 
 #endif

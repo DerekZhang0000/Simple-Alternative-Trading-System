@@ -74,11 +74,12 @@ class MatchingEngine {
     inline std::optional<Order*> attemptTrade(Order* incomingOrder, std::string const & symbol);
 
     /**
-     * @brief Adds an order to the order book, then executes trades if possible
+     * @brief Adds an order to the order book, then executes trades if possible and returns the open order if it exists
      * 
      * @param msg 
+     * @return Order* 
      */
-    void addOrder(PitchMessage const & msg);
+    Order* addOrder(PitchMessage const & msg);
 
     /**
      * @brief Cancels a certain number of shares in an order
@@ -123,13 +124,6 @@ class MatchingEngine {
      * @param msg 
      */
     void ingestMessage(PitchMessage const & msg);
-
-    /**
-     * @brief Gets an 8-character string of milliseconds since midnight
-     * 
-     * @return std::string 
-     */
-    std::string getTimestampStr();
 
     /**
      * @brief Gets the next ExecutionID

@@ -11,8 +11,6 @@
 
 #include "dataService.h"
 
-#include <mutex>
-
 void DataService::incrementBase36(std::string & s)
 {
     if (s.length() != 12) {
@@ -42,7 +40,6 @@ void DataService::incrementBase36(std::string & s)
 
 std::string DataService::getNextExecutionID()
 {
-    std::lock_guard<std::mutex> lock(mutex);
     incrementBase36(executionID);
     return executionID;
 }

@@ -42,3 +42,5 @@
 - Added last price functionality to Matching Engine
 ### 6/20
 - Continued building out Trader Pool class
+### 6/25
+- Completed core Gaussian Trader Bot functionality
