@@ -44,3 +44,5 @@
 - Continued building out Trader Pool class
 ### 6/25
 - Completed core Gaussian Trader Bot functionality
+### 7/6
+- Completed core Market Maker and Trade Messenger Bot functionality

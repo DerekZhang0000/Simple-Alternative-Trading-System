@@ -55,3 +55,10 @@ std::string PitchMsgFactory::getPriceStr(double price)
     oss << std::setw(10) << std::setfill('0') << scaledPrice;
     return oss.str();
 }
+
+std::string PitchMsgFactory::getSharesStr(int shares)
+{
+    std::ostringstream oss;
+    oss << std::setw(6) << std::setfill('0') << shares;
+    return oss.str();
+}

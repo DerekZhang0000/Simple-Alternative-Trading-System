@@ -67,10 +67,11 @@ class TraderBot {
      * @param orderIDs 
      * @return std::string 
      */
-    virtual std::vector<PitchMessage*> createPitchOrders(std::vector<std::string> orderIDs) = 0;
+    virtual std::vector<PitchMessage*> createPitchMsgs(std::vector<std::string> orderIDs) = 0;
 };
 
 class GaussianBot : public TraderBot {
+    // Requires Mean, Deviation, Side, Shares, Symbol, Display
     private:
     std::random_device rd{};
     std::mt19937 gen{rd()};
@@ -78,17 +79,24 @@ class GaussianBot : public TraderBot {
     std::function<double(void)> gauss_dist = nullptr;
 
     public:
-    std::vector<PitchMessage*> createPitchOrders(std::vector<std::string> orderIDs);
+    std::vector<PitchMessage*> createPitchMsgs(std::vector<std::string> orderIDs);
 };
 
 class MarketMakerBot : public TraderBot {
+    // Requires Side, Shares, Symbol, Price, Display
     public:
-    std::vector<PitchMessage*> createPitchOrders(std::vector<std::string> orderIDs);
+    std::vector<PitchMessage*> createPitchMsgs(std::vector<std::string> orderIDs);
 };
 
 class TradeMessenger : public TraderBot {
+    // Requires Mean, Deviation, Side, Shares, Symbol, Price
+    private:
+    std::random_device rd{};
+    std::mt19937 gen{rd()};
+    std::function<double(void)> gauss_dist = nullptr;
+
     public:
-    std::vector<PitchMessage*> createPitchOrders(std::vector<std::string> orderIDs);
+    std::vector<PitchMessage*> createPitchMsgs(std::vector<std::string> orderIDs);
 };
 
 #endif

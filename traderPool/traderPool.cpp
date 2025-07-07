@@ -13,6 +13,11 @@
 
 #include <stdexcept>
 
+TraderPool::TraderPool(std::vector<TRADER_TYPE> traderBots, std::vector<std::unordered_map<std::string, std::string>> paramList)
+{
+    
+}
+
 void TraderPool::incrementBase36(std::string & s)
 {
     if (s.length() != 12) {

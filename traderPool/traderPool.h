@@ -25,11 +25,15 @@ class TraderPool {
     /**
      * @brief Increments a base 64 string of length 12 in place
      * 
-     * @param base36Str 
+     * @param base36Str
      */
     void incrementBase36(std::string & s);
 
     public:
+    enum TRADER_TYPE {GAUSSIAN, MM, TRADEMSG};
+
+    TraderPool(std::vector<TRADER_TYPE> traderBots, std::vector<std::unordered_map<std::string, std::string>> paramList);
+    ~TraderPool() = default;
 
     /**
      * @brief Gets the next Order ID

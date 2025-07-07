@@ -45,12 +45,20 @@ class PitchMsgFactory {
     std::string getTimestampStr();
 
     /**
-     * @brief 10 ASCII digits, whole number price in ten-thousandths of a dollar, with leading zeroes if needed
+     * @brief Gets 10 ASCII digits, whole number price in ten-thousandths of a dollar, with leading zeroes if needed
      * 
      * @param price 
      * @return std::string 
      */
     std::string getPriceStr(double price);
+
+    /**
+     * @brief Gets a 6-character string of the number of shares
+     * 
+     * @param shares 
+     * @return std::string 
+     */
+    std::string getSharesStr(int shares);
 };
 
 #endif
