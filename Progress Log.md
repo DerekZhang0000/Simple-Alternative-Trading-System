@@ -1,3 +1,10 @@
+# Worse-Alternative-Trading-System
+
+## Overview
+The Worse Alternative Trading System (WATS) is a real-time equity market simulator, which uses price-time priority.
+The purpose of this project is to familiarize myself with exchange microstructure and Cboe's PITCH protocol.
+
+## Progress Log
 ### 5/12
 - Began project with building out PITCH Message class, using publicly available specifications from Cboe Global Markets
 ### 5/13

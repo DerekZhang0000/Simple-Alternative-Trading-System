@@ -1,1 +1,0 @@
-# Worse-Alternative-Trading-System

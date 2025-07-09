@@ -1,8 +1,0 @@
-Core Functionality
-DONE Create message class
-DONE Create matching engine and order book architecture
-IN-PROCESS Set up testing
-IN-PROCESS Create trading simulator
-Add data collection and analysis
-Polish everything and refactor code
-Update documentation / create dependency graph
