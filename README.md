@@ -1,12 +1,12 @@
-# Worse-Alternative-Trading-System
+# Simple-Alternative-Trading-System
 
 ## Overview
-The Worse Alternative Trading System (WATS) is a real-time equity market simulator, which uses price-time priority.
-The purpose of this project is to familiarize myself with exchange microstructure and Cboe's PITCH protocol.
+The Simple Alternative Trading System (SATS) is a real-time equity market simulator, which uses price-time priority.
+The purpose of this project is to familiarize myself with exchange microstructure.
 
 ## Progress Log
 ### 5/12
-- Began project with building out PITCH Message class, using publicly available specifications from Cboe Global Markets
+- Began project with building out PITCH Message class
 ### 5/13
 - Started building out Matching Engine, Order Queue, and Order class architectures
 ### 5/15
